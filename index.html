@@ -33,7 +33,7 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <canvas id="battleCanvas" width="600" height="300"></canvas>
 </div>
 
-<script>  // Myg v1
+<script>
 function calculate() {
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
@@ -52,7 +52,7 @@ function calculate() {
     let doubleHitChance = Math.min(1, 0.4 * bonusDoubleHit);
     let lifeSteal = 0.2 * bonusLifeSteal;
     let critChance = 0.12 * bonusCritChance;
-    let critDamageBonus = 1.2 + 1.0 * bonusCritDamage; // <-- corrected to 120% base
+    let critDamageBonus = 1.2 + 1.0 * bonusCritDamage;
     let regen = 0.06 * bonusRegen;
 
     function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, hp) {
@@ -241,7 +241,12 @@ function calculate() {
         });
     }
 
-    let lastTime = 0, playerTimer=0, bestTimer=0;
+    // --- LOOP CORRIGÉ POUR PREMIER COUP SIMULTANÉ ---
+    let lastTime = 0;
+    let playerTimer = 0;
+    let bestTimer = 0;
+    let firstAttackDone = false;
+
     function loop(timestamp){
         if(!lastTime) lastTime=timestamp;
         let dt = timestamp - lastTime;
@@ -251,8 +256,20 @@ function calculate() {
         bestTimer += dt;
         lastRegen += dt;
 
-        if(playerTimer>1000/(BASE_ATTACKS_PER_SECOND*(1+player.atkSpeed/100))){ attack(player,best); playerTimer=0; }
-        if(bestTimer>1000/(BASE_ATTACKS_PER_SECOND*(1+best.atkSpeed/100))){ attack(best,player); bestTimer=0; }
+        // --- PREMIER COUP SIMULTANÉ ---
+        if(!firstAttackDone) {
+            attack(player, best);
+            attack(best, player);
+            playerTimer = 0;
+            bestTimer = 0;
+            firstAttackDone = true;
+        } else {
+            let playerInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+player.atkSpeed/100));
+            let bestInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+best.atkSpeed/100));
+
+            if(playerTimer >= playerInterval){ attack(player, best); playerTimer -= playerInterval; }
+            if(bestTimer >= bestInterval){ attack(best, player); bestTimer -= bestInterval; }
+        }
 
         if(lastRegen>=1000){
             [player,best].forEach(unit=>{
@@ -280,4 +297,3 @@ function calculate() {
 </script>
 </body>
 </html>
-
