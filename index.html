@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Battle Simulator Forge Master</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f0f0; }
+.container { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+label { display: block; margin-top: 10px; }
+input[type=number] { width: 60px; }
+button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
+.result { margin-top: 20px; background: #e0ffe0; padding: 10px; border-radius: 5px; }
+.best-build { margin-top: 20px; background: #c0dfff; padding: 10px; border-radius: 5px; }
+#battleCanvas { margin-top: 20px; background: #222; display: block; margin-left: auto; margin-right: auto; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Battle Simulator Forge Master</h2>
+<label>Base Damage: <input type="number" id="damage" value="30000"></label>
+<label>Hit Points: <input type="number" id="hp" value="200000"></label>
+<label>Total bonus points in sub-stats: <input type="number" id="bonusPoints" value="12"></label>
+<h3>Bonus Stat Allocation:</h3>
+<label>Attack Speed (+40% max per point): <input type="number" id="bonusAttackSpeed" value="2"></label>
+<label>Double Hit Chance (+40% max per point): <input type="number" id="bonusDoubleHit" value="2"></label>
+<label>Life Steal (+20% max per point): <input type="number" id="bonusLifeSteal" value="2"></label>
+<label>Critical Hit Chance (+6% max per point): <input type="number" id="bonusCritChance" value="2"></label>
+<label>Critical Damage (+100% max per point): <input type="number" id="bonusCritDamage" value="2"></label>
+<label>Health Regeneration (+6% max per point): <input type="number" id="bonusRegen" value="2"></label>
+<button onclick="calculate()">Calculate and Start Battle</button>
+<div class="result" id="result"></div>
+<div class="best-build" id="bestBuild"></div>
+<canvas id="battleCanvas" width="600" height="300"></canvas>
+</div>
+
+<script>
+function calculate() {
+    const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
+
+    let damage = parseFloat(document.getElementById('damage').value);
+    let hp = parseFloat(document.getElementById('hp').value);
+    let totalBonusPoints = parseInt(document.getElementById('bonusPoints').value);
+
+    let bonusAttackSpeed = parseInt(document.getElementById('bonusAttackSpeed').value) || 0;
+    let bonusDoubleHit = parseInt(document.getElementById('bonusDoubleHit').value) || 0;
+    let bonusLifeSteal = parseInt(document.getElementById('bonusLifeSteal').value) || 0;
+    let bonusCritChance = parseInt(document.getElementById('bonusCritChance').value) || 0;
+    let bonusCritDamage = parseInt(document.getElementById('bonusCritDamage').value) || 0;
+    let bonusRegen = parseInt(document.getElementById('bonusRegen').value) || 0;
+
+    let attackSpeed = 0.4 * bonusAttackSpeed * 100;
+    let doubleHitChance = Math.min(1, 0.4 * bonusDoubleHit);
+    let lifeSteal = 0.2 * bonusLifeSteal;
+    let critChance = 0.06 * bonusCritChance;
+    let critDamageBonus = 1.2 + 1.0 * bonusCritDamage; // <-- corrected to 120% base
+    let regen = 0.06 * bonusRegen;
+
+    function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, hp) {
+        let dpsSingle = damage * (1 + critChance * (critDamage - 1)); 
+        let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle + damage * (1 + critChance * (critDamage - 1)));
+        let dpsPerSecond = dpsAvg * (1 + atkSpeed / 100) * BASE_ATTACKS_PER_SECOND;
+        let lifeStealPerSecond = dpsPerSecond * lifeSteal;
+        let regenPerSecond = hp * regen;
+        let score = dpsPerSecond + (lifeStealPerSecond * 1.5) + regenPerSecond;
+        return {score, dpsPerSecond, lifeStealPerSecond, regenPerSecond};
+    }
+
+    let playerStats = computeScore(damage, attackSpeed, doubleHitChance, critChance, critDamageBonus, lifeSteal, regen, hp);
+
+    let bestScore = 0;
+    let bestConfig = null;
+
+    function generateConfigs(points, config = [0,0,0,0,0,0], index = 0) {
+        if(index === config.length - 1) {
+            config[index] = points;
+            evaluateConfig(config);
+            return;
+        }
+        for(let i=0; i<=points; i++){
+            config[index] = i;
+            generateConfigs(points - i, config, index + 1);
+        }
+    }
+
+    function evaluateConfig(cfg){
+        let atkSpeed = 0.4 * cfg[0] * 100;
+        let dblHit = Math.min(1, 0.4 * cfg[1]);
+        let ls = 0.2 * cfg[2];
+        let critC = 0.06 * cfg[3];
+        let critD = 1.2 + cfg[4]; // corrected
+        let reg = 0.06 * cfg[5];
+
+        let stats = computeScore(damage, atkSpeed, dblHit, critC, critD, ls, reg, hp);
+
+        if(stats.score > bestScore){
+            bestScore = stats.score;
+            bestConfig = cfg.slice();
+        }
+    }
+
+    generateConfigs(totalBonusPoints);
+
+    let bAtkSpeed = bestConfig[0] * 40;
+    let bDouble = Math.min(1, bestConfig[1] * 0.4);
+    let bLifeSteal = bestConfig[2] * 0.2;
+    let bCritChance = bestConfig[3] * 0.06;
+    let bCritDamage = 1.2 + bestConfig[4]; // corrected
+    let bRegen = bestConfig[5] * 0.06;
+
+    let bestStats = computeScore(damage, bAtkSpeed, bDouble, bCritChance, bCritDamage, bLifeSteal, bRegen, hp);
+
+    let bestScoreNote = 100;
+    let playerScoreNote = Math.round((playerStats.score / bestStats.score) * 100);
+
+    document.getElementById('result').innerHTML = `
+        <strong>Player Build:</strong><br>
+        Average DPS: ${playerStats.dpsPerSecond.toFixed(2)}<br>
+        Average Life Steal per second: ${playerStats.lifeStealPerSecond.toFixed(2)}<br>
+        Average Health Regeneration: ${playerStats.regenPerSecond.toFixed(2)}<br><br>
+        Attack Speed: ${attackSpeed.toFixed(2)}% (${bonusAttackSpeed} pts)<br>
+        Double Hit Chance: ${(doubleHitChance*100).toFixed(2)}% (${bonusDoubleHit} pts)<br>
+        Life Steal: ${(lifeSteal*100).toFixed(2)}% (${bonusLifeSteal} pts)<br>
+        Critical Hit Chance: ${(critChance*100).toFixed(2)}% (${bonusCritChance} pts)<br>
+        Critical Damage: ${(critDamageBonus*100).toFixed(2)}% (${bonusCritDamage} pts)<br>
+        Health Regeneration: ${(regen*100).toFixed(2)}% (${bonusRegen} pts)<br><br>
+        <strong>Overall Score:</strong> ${playerScoreNote}/100
+    `;
+
+    document.getElementById('bestBuild').innerHTML = `
+        <strong>Best Build:</strong><br>
+        Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
+        Average Life Steal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
+        Average Health Regeneration: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
+        Attack Speed: ${bAtkSpeed.toFixed(2)}% (${bestConfig[0]} pts)<br>
+        Double Hit Chance: ${(bDouble*100).toFixed(2)}% (${bestConfig[1]} pts)<br>
+        Life Steal: ${(bLifeSteal*100).toFixed(2)}% (${bestConfig[2]} pts)<br>
+        Critical Hit Chance: ${(bCritChance*100).toFixed(2)}% (${bestConfig[3]} pts)<br>
+        Critical Damage: ${(bCritDamage*100).toFixed(2)}% (${bestConfig[4]} pts)<br>
+        Health Regeneration: ${(bRegen*100).toFixed(2)}% (${bestConfig[5]} pts)<br><br>
+        <strong>Overall Score:</strong> ${bestScoreNote}/100
+    `;
+
+    const canvas = document.getElementById('battleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let player = {x:100, y:200, hp:hp, maxHp:hp, atkSpeed:attackSpeed, dbl:doubleHitChance, crit:critChance, critD:critDamageBonus, ls:lifeSteal, regen:regen, dmg:damage};
+    let best = {x:500, y:200, hp:hp, maxHp:hp, atkSpeed:bAtkSpeed, dbl:bDouble, crit:bCritChance, critD:bCritDamage, ls:bLifeSteal, regen:bRegen, dmg:damage};
+
+    let messages = [];
+    let projectiles = [];
+    let lastRegen = 0;
+
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle='blue';
+        ctx.fillRect(player.x-20, player.y-20, 40, 40);
+        ctx.fillStyle='red';
+        ctx.fillRect(player.x-25, player.y-30, 50*(player.hp/player.maxHp), 5);
+
+        ctx.fillStyle='purple';
+        ctx.fillRect(best.x-20, best.y-20, 40,40);
+        ctx.fillStyle='red';
+        ctx.fillRect(best.x-25, best.y-30, 50*(best.hp/best.maxHp),5);
+
+        for(let i=0;i<messages.length;i++){
+            ctx.font='bold 16px Arial';
+            ctx.fillStyle=messages[i].color;
+            ctx.fillText(messages[i].text, messages[i].x, messages[i].y);
+            messages[i].y -= 0.5;
+            messages[i].alpha -= 0.003;
+        }
+        messages = messages.filter(m=>m.alpha>0);
+
+        for(let i=0;i<projectiles.length;i++){
+            ctx.fillStyle = projectiles[i].color;
+            ctx.beginPath();
+            ctx.arc(projectiles[i].x, projectiles[i].y, 5, 0, 2*Math.PI);
+            ctx.fill();
+            projectiles[i].x += projectiles[i].vx;
+            projectiles[i].y += projectiles[i].vy;
+        }
+        projectiles = projectiles.filter(p => !p.hit && p.x>0 && p.x<canvas.width);
+    }
+
+    function attack(attacker, defender){
+        let hits = 1;
+        if(Math.random() < attacker.dbl) hits = 2;
+
+        let baseDx = defender.x - attacker.x;
+        let baseDy = defender.y - attacker.y;
+        let baseDist = Math.sqrt(baseDx*baseDx + baseDy*baseDy);
+        let dirX = baseDx / baseDist;
+        let dirY = baseDy / baseDist;
+
+        for(let i=0;i<hits;i++){
+            let offsetX = 0;
+            let offsetY = 0;
+            if(hits === 2){
+                let separation = (i === 0 ? -10 : 120);
+                offsetX = dirX * separation;
+                offsetY = dirY * separation;
+            }
+            let dx = defender.x - (attacker.x + offsetX);
+            let dy = defender.y - (attacker.y + offsetY);
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let vx = dx / dist * 5;
+            let vy = dy / dist * 5;
+
+            projectiles.push({
+                x: attacker.x + offsetX,
+                y: attacker.y + offsetY,
+                vx: vx,
+                vy: vy,
+                color: 'orange',
+                dmg: attacker.dmg,
+                attacker: attacker,
+                target: defender
+            });
+        }
+    }
+
+    function hitProjectiles(){
+        projectiles.forEach(p=>{
+            let dx = Math.abs(p.x - p.target.x);
+            let dy = Math.abs(p.y - p.target.y);
+            if(dx<5 && dy<5){
+                let isCrit = Math.random() < p.attacker.crit;
+                let dmg = Math.floor(isCrit ? p.dmg * p.attacker.critD : p.dmg);
+                p.target.hp -= dmg;
+                messages.push({x:p.target.x-10, y:p.target.y-25, text:'-'+dmg, color:isCrit?'red':'orange', alpha:1});
+
+                if (p.attacker.ls > 0) {
+                    let healPotential = Math.floor(dmg * p.attacker.ls);
+                    let healReal = Math.max(0, Math.min(healPotential, p.attacker.maxHp - p.attacker.hp));
+                    p.attacker.hp += healReal;
+                    messages.push({x: p.attacker.x - 10, y: p.attacker.y - 45, text: '+ ' + healReal, color: 'green', alpha: 1});
+                }
+
+                p.hit=true;
+            }
+        });
+    }
+
+    let lastTime = 0, playerTimer=0, bestTimer=0;
+    function loop(timestamp){
+        if(!lastTime) lastTime=timestamp;
+        let dt = timestamp - lastTime;
+        lastTime = timestamp;
+
+        playerTimer += dt;
+        bestTimer += dt;
+        lastRegen += dt;
+
+        if(playerTimer>1000/(BASE_ATTACKS_PER_SECOND*(1+player.atkSpeed/100))){ attack(player,best); playerTimer=0; }
+        if(bestTimer>1000/(BASE_ATTACKS_PER_SECOND*(1+best.atkSpeed/100))){ attack(best,player); bestTimer=0; }
+
+        if(lastRegen>=1000){
+            [player,best].forEach(unit=>{
+                if(unit.regen>0){
+                    let healPotential = Math.floor(unit.maxHp * unit.regen);
+                    let healReal = Math.max(0, Math.min(healPotential, unit.maxHp - unit.hp));
+                    unit.hp += healReal;
+                    messages.push({x: unit.x-10, y: unit.y-45, text:'+ '+healReal, color:'green', alpha:1});
+                }
+            });
+            lastRegen=0;
+        }
+
+        hitProjectiles();
+        draw();
+
+        if(player.hp<=0 || best.hp<=0){
+            ctx.font='bold 24px Arial';
+            ctx.fillStyle='yellow';
+            ctx.fillText(player.hp<=0?'Best build wins!':'Player wins!',200,150);
+        } else requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
