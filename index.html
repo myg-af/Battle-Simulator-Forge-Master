@@ -142,60 +142,55 @@ function calculate() {
         <strong>Overall Score:</strong> ${bestScoreNote}/100
     `;
 
-    // --- SIMULATION DE COMBATS ---
-    function simulateCombat(playerStats, bestStats) {
-        let playerHp = hp;
-        let bestHp = hp;
+    // --- SIMULATION 1000 BATTLES COMME CANVAS ---
+    function simulate1000CombatsStatReal() {
+        const simulations = 100000;
+        let playerWins = 0;
+        let bestWins = 0;
+        const interval = 100; // ms
 
-        let playerTimer = 0;
-        let bestTimer = 0;
-        let firstAttackDone = false;
+        for(let i=0;i<simulations;i++){
+            let p = {hp: hp, maxHp: hp, dmg: damage, atkSpeed: attackSpeed, dbl: doubleHitChance, crit: critChance, critD: critDamageBonus, ls: lifeSteal, regen: regen};
+            let b = {hp: hp, maxHp: hp, dmg: damage, atkSpeed: bAtkSpeed, dbl: bDouble, crit: bCritChance, critD: bCritDamage, ls: bLifeSteal, regen: bRegen};
 
-        while(playerHp>0 && bestHp>0) {
-            if(!firstAttackDone) {
-                // Premier coup simultané
-                let dmgToBest = Math.random() < playerStats.crit ? Math.floor(playerStats.dpsPerSecond) * playerStats.score : Math.floor(playerStats.dpsPerSecond);
-                let dmgToPlayer = Math.random() < bestStats.crit ? Math.floor(bestStats.dpsPerSecond) * bestStats.score : Math.floor(bestStats.dpsPerSecond);
-                bestHp -= dmgToBest;
-                playerHp -= dmgToPlayer;
-                firstAttackDone = true;
-                continue;
+            let pTimer=0, bTimer=0;
+            while(p.hp>0 && b.hp>0){
+                pTimer += interval;
+                bTimer += interval;
+
+                let pInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+p.atkSpeed/100));
+                let bInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+b.atkSpeed/100));
+
+                while(pTimer >= pInterval){ attackSim(p,b); pTimer -= pInterval; }
+                while(bTimer >= bInterval){ attackSim(b,p); bTimer -= bInterval; }
+
+                // Regen
+                p.hp = Math.min(p.maxHp, p.hp + p.maxHp*p.regen*interval/1000);
+                b.hp = Math.min(b.maxHp, b.hp + b.maxHp*b.regen*interval/1000);
             }
 
-            // DPS par intervalle
-            let playerInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+attackSpeed/100));
-            let bestInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+bAtkSpeed/100));
-
-            // Attaque continue
-            playerTimer += playerInterval;
-            bestTimer += bestInterval;
-
-            if(playerTimer >= playerInterval){ bestHp -= playerStats.dpsPerSecond; playerTimer = 0; }
-            if(bestTimer >= bestInterval){ playerHp -= bestStats.dpsPerSecond; bestTimer = 0; }
-
-            // Regeneration
-            playerHp = Math.min(hp, playerHp + hp*regen);
-            bestHp = Math.min(hp, bestHp + hp*bRegen);
+            if(p.hp>0) playerWins++; else bestWins++;
         }
 
-        return playerHp>0 ? 'player' : 'best';
+        document.getElementById('simulationResults').innerHTML = `
+            <strong>Simulation 100000 battles:</strong><br>
+            Player wins: ${playerWins}<br>
+            Best build wins: ${bestWins}
+        `;
     }
 
-    // --- 1000 COMBATS ---
-    let playerWins=0, bestWins=0;
-    for(let i=0;i<1000;i++){
-        let winner = simulateCombat(playerStats, bestStats);
-        if(winner==='player') playerWins++;
-        else bestWins++;
+    function attackSim(attacker, defender){
+        let hits = 1 + (Math.random() < attacker.dbl ? 1 : 0);
+        for(let h=0; h<hits; h++){
+            let dmg = attacker.dmg * (Math.random() < attacker.crit ? attacker.critD : 1);
+            defender.hp -= dmg;
+            if(attacker.ls>0) attacker.hp = Math.min(attacker.maxHp, attacker.hp + dmg*attacker.ls);
+        }
     }
 
-    document.getElementById('simulationResults').innerHTML = `
-        <strong>Simulation 1000 combats:</strong><br>
-        Player wins: ${playerWins}<br>
-        Best build wins: ${bestWins}
-    `;
+    simulate1000CombatsStatReal();
 
-    // --- CONTINUATION DU CANVAS INTERACTIF ---
+    // --- CANVAS INTERACTIF ---
     const canvas = document.getElementById('battleCanvas');
     const ctx = canvas.getContext('2d');
 
