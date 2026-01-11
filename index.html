@@ -33,7 +33,7 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <canvas id="battleCanvas" width="600" height="300"></canvas>
 </div>
 
-<script>
+<script>  // Myg v1
 function calculate() {
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
@@ -87,7 +87,7 @@ function calculate() {
         let dblHit = Math.min(1, 0.4 * cfg[1]);
         let ls = 0.2 * cfg[2];
         let critC = 0.12 * cfg[3];
-        let critD = 1.2 + cfg[4]; // corrected
+        let critD = 1.2 + cfg[4];
         let reg = 0.06 * cfg[5];
 
         let stats = computeScore(damage, atkSpeed, dblHit, critC, critD, ls, reg, hp);
@@ -103,8 +103,8 @@ function calculate() {
     let bAtkSpeed = bestConfig[0] * 40;
     let bDouble = Math.min(1, bestConfig[1] * 0.4);
     let bLifeSteal = bestConfig[2] * 0.2;
-    let bCritChance = bestConfig[3] * 0.06;
-    let bCritDamage = 1.2 + bestConfig[4]; // corrected
+    let bCritChance = bestConfig[3] * 0.12;
+    let bCritDamage = 1.2 + bestConfig[4];
     let bRegen = bestConfig[5] * 0.06;
 
     let bestStats = computeScore(damage, bAtkSpeed, bDouble, bCritChance, bCritDamage, bLifeSteal, bRegen, hp);
@@ -280,5 +280,4 @@ function calculate() {
 </script>
 </body>
 </html>
-
 
