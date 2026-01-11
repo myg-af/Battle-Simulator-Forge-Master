@@ -24,7 +24,7 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <label>Attack Speed (+40% max per point): <input type="number" id="bonusAttackSpeed" value="2"></label>
 <label>Double Hit Chance (+40% max per point): <input type="number" id="bonusDoubleHit" value="2"></label>
 <label>Life Steal (+20% max per point): <input type="number" id="bonusLifeSteal" value="2"></label>
-<label>Critical Hit Chance (+6% max per point): <input type="number" id="bonusCritChance" value="2"></label>
+<label>Critical Hit Chance (+12% max per point): <input type="number" id="bonusCritChance" value="2"></label>
 <label>Critical Damage (+100% max per point): <input type="number" id="bonusCritDamage" value="2"></label>
 <label>Health Regeneration (+6% max per point): <input type="number" id="bonusRegen" value="2"></label>
 <button onclick="calculate()">Calculate and Start Battle</button>
@@ -51,7 +51,7 @@ function calculate() {
     let attackSpeed = 0.4 * bonusAttackSpeed * 100;
     let doubleHitChance = Math.min(1, 0.4 * bonusDoubleHit);
     let lifeSteal = 0.2 * bonusLifeSteal;
-    let critChance = 0.06 * bonusCritChance;
+    let critChance = 0.12 * bonusCritChance;
     let critDamageBonus = 1.2 + 1.0 * bonusCritDamage; // <-- corrected to 120% base
     let regen = 0.06 * bonusRegen;
 
@@ -280,3 +280,4 @@ function calculate() {
 </script>
 </body>
 </html>
+
