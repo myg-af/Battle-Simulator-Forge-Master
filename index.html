@@ -11,6 +11,7 @@ input[type=number] { width: 60px; }
 button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 .result { margin-top: 20px; background: #e0ffe0; padding: 10px; border-radius: 5px; }
 .best-build { margin-top: 20px; background: #c0dfff; padding: 10px; border-radius: 5px; }
+.simulation { margin-top: 20px; background: #fff0f0; padding: 10px; border-radius: 5px; }
 #battleCanvas { margin-top: 20px; background: #222; display: block; margin-left: auto; margin-right: auto; border-radius: 10px; }
 </style>
 </head>
@@ -31,9 +32,10 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <div class="result" id="result"></div>
 <div class="best-build" id="bestBuild"></div>
 <canvas id="battleCanvas" width="600" height="300"></canvas>
+<div class="simulation" id="simulationResults"></div>
 </div>
 
-<script>  // Myg 452
+<script> // mllyg
 function calculate() {
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
@@ -140,6 +142,60 @@ function calculate() {
         <strong>Overall Score:</strong> ${bestScoreNote}/100
     `;
 
+    // --- SIMULATION DE COMBATS ---
+    function simulateCombat(playerStats, bestStats) {
+        let playerHp = hp;
+        let bestHp = hp;
+
+        let playerTimer = 0;
+        let bestTimer = 0;
+        let firstAttackDone = false;
+
+        while(playerHp>0 && bestHp>0) {
+            if(!firstAttackDone) {
+                // Premier coup simultané
+                let dmgToBest = Math.random() < playerStats.crit ? Math.floor(playerStats.dpsPerSecond) * playerStats.score : Math.floor(playerStats.dpsPerSecond);
+                let dmgToPlayer = Math.random() < bestStats.crit ? Math.floor(bestStats.dpsPerSecond) * bestStats.score : Math.floor(bestStats.dpsPerSecond);
+                bestHp -= dmgToBest;
+                playerHp -= dmgToPlayer;
+                firstAttackDone = true;
+                continue;
+            }
+
+            // DPS par intervalle
+            let playerInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+attackSpeed/100));
+            let bestInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+bAtkSpeed/100));
+
+            // Attaque continue
+            playerTimer += playerInterval;
+            bestTimer += bestInterval;
+
+            if(playerTimer >= playerInterval){ bestHp -= playerStats.dpsPerSecond; playerTimer = 0; }
+            if(bestTimer >= bestInterval){ playerHp -= bestStats.dpsPerSecond; bestTimer = 0; }
+
+            // Regeneration
+            playerHp = Math.min(hp, playerHp + hp*regen);
+            bestHp = Math.min(hp, bestHp + hp*bRegen);
+        }
+
+        return playerHp>0 ? 'player' : 'best';
+    }
+
+    // --- 1000 COMBATS ---
+    let playerWins=0, bestWins=0;
+    for(let i=0;i<1000;i++){
+        let winner = simulateCombat(playerStats, bestStats);
+        if(winner==='player') playerWins++;
+        else bestWins++;
+    }
+
+    document.getElementById('simulationResults').innerHTML = `
+        <strong>Simulation 1000 combats:</strong><br>
+        Player wins: ${playerWins}<br>
+        Best build wins: ${bestWins}
+    `;
+
+    // --- CONTINUATION DU CANVAS INTERACTIF ---
     const canvas = document.getElementById('battleCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -149,6 +205,10 @@ function calculate() {
     let messages = [];
     let projectiles = [];
     let lastRegen = 0;
+    let lastTime = 0;
+    let playerTimerCanvas = 0;
+    let bestTimerCanvas = 0;
+    let firstAttackDoneCanvas = false;
 
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -241,34 +301,27 @@ function calculate() {
         });
     }
 
-    // --- LOOP CORRIGÉ POUR PREMIER COUP SIMULTANÉ ---
-    let lastTime = 0;
-    let playerTimer = 0;
-    let bestTimer = 0;
-    let firstAttackDone = false;
-
     function loop(timestamp){
         if(!lastTime) lastTime=timestamp;
         let dt = timestamp - lastTime;
         lastTime = timestamp;
 
-        playerTimer += dt;
-        bestTimer += dt;
+        playerTimerCanvas += dt;
+        bestTimerCanvas += dt;
         lastRegen += dt;
 
-        // --- PREMIER COUP SIMULTANÉ ---
-        if(!firstAttackDone) {
-            attack(player, best);
-            attack(best, player);
-            playerTimer = 0;
-            bestTimer = 0;
-            firstAttackDone = true;
+        if(!firstAttackDoneCanvas){
+            attack(player,best);
+            attack(best,player);
+            firstAttackDoneCanvas = true;
+            playerTimerCanvas = 0;
+            bestTimerCanvas = 0;
         } else {
             let playerInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+player.atkSpeed/100));
             let bestInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+best.atkSpeed/100));
 
-            if(playerTimer >= playerInterval){ attack(player, best); playerTimer -= playerInterval; }
-            if(bestTimer >= bestInterval){ attack(best, player); bestTimer -= bestInterval; }
+            if(playerTimerCanvas >= playerInterval){ attack(player,best); playerTimerCanvas -= playerInterval; }
+            if(bestTimerCanvas >= bestInterval){ attack(best,player); bestTimerCanvas -= bestInterval; }
         }
 
         if(lastRegen>=1000){
