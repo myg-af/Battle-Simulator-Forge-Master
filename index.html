@@ -11,7 +11,25 @@ input[type=number] { width: 60px; }
 button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 .result { margin-top: 20px; background: #e0ffe0; padding: 10px; border-radius: 5px; }
 .best-build { margin-top: 20px; background: #c0dfff; padding: 10px; border-radius: 5px; }
-#battleCanvas { margin-top: 20px; background: #222; display: block; margin-left: auto; margin-right: auto; border-radius: 10px; }
+.canvas-container {
+    display: flex;
+    flex-wrap: wrap;          /* permet de passer à la ligne suivante */
+    gap: 20px;                /* espace entre canvas */
+    justify-content: center;  /* centre horizontalement */
+    padding: 20px;
+    background-color: #f8f8f8; /* léger fond pour différencier */
+    width: 100%;              /* prend toute la largeur */
+    box-sizing: border-box;
+}
+
+.canvas-container canvas {
+    border-radius: 10px;
+    background-color: #222;
+}
+
+
+
+
 </style>
 </head>
 <body>
@@ -19,7 +37,8 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <h2>Battle Simulator Forge Master</h2>
 <label>Base Damage: <input type="number" id="damage" value="30000"></label>
 <label>Base HP: <input type="number" id="hp" value="200000"></label>
-<label>Total number of sub-stats assigned for "Best Build": <input type="number" id="bonusPoints" value="12"></label>
+<label>PvP HP multiplier: <input type="number" id="hpMultiplier" value="5"></label>
+<label>Total number of Sub-stats assigned to create the "Best Build": <input type="number" id="bonusPoints" value="12"></label>
 <h3>Distribute your sub-stats:</h3>
 <label>Attack Speed (+40% per sub-stat): <input type="number" id="bonusAttackSpeed" value="2"></label>
 <label>Double Chance (+40% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
@@ -31,15 +50,61 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <button onclick="calculate()">Calculate and Start Battle</button>
 <div class="result" id="result"></div>
 <div class="best-build" id="bestBuild"></div>
-<canvas id="battleCanvas" width="600" height="300"></canvas>
+</div>
+
+<div class="canvas-container">
+	<canvas id="battleCanvas1" width="600" height="300"></canvas>
+	<canvas id="battleCanvas2" width="600" height="300"></canvas>
+	<canvas id="battleCanvas3" width="600" height="300"></canvas>
+	<canvas id="battleCanvas4" width="600" height="300"></canvas>
+	<canvas id="battleCanvas5" width="600" height="300"></canvas>
+	<canvas id="battleCanvas6" width="600" height="300"></canvas>
+	<canvas id="battleCanvas7" width="600" height="300"></canvas>
+	<canvas id="battleCanvas8" width="600" height="300"></canvas>
+	<canvas id="battleCanvas9" width="600" height="300"></canvas>
 </div>
 
 <script>
+
+function updateURL() {
+    const fields = [
+        'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+        'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+        'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage'
+    ];
+
+    const params = new URLSearchParams();
+
+    fields.forEach(id => {
+        params.set(id, document.getElementById(id).value);
+    });
+
+    const newURL = window.location.origin + window.location.pathname + '?' + params.toString();
+    window.history.replaceState({}, '', newURL); // Met à jour l’URL sans recharger la page
+}
+
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const fields = [
+        'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+        'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+        'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage'
+    ];
+
+    fields.forEach(id => {
+        if(params.has(id)) {
+            document.getElementById(id).value = params.get(id);
+        }
+    });
+}
+
+
 function calculate() {
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
     let damage = parseFloat(document.getElementById('damage').value);
     let hp = parseFloat(document.getElementById('hp').value);
+    let hpMultiplier = parseFloat(document.getElementById('hpMultiplier').value) || 1;
     let totalBonusPoints = parseInt(document.getElementById('bonusPoints').value);
 
     let bonusAttackSpeed = parseInt(document.getElementById('bonusAttackSpeed').value) || 0;
@@ -135,174 +200,218 @@ document.getElementById('result').innerHTML = `
     <strong>Overall Score:</strong> ${playerScoreNote}/100
 `;
 
+document.getElementById('bestBuild').innerHTML = `
+    <strong>Best Build (${totalBonusPoints} sub-stats):</strong><br>
+    Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
+    Average Lifesteal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
+    Average Health Regen: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
+    Attack Speed: ${bAtkSpeed.toFixed(2)}% (${bestConfig[0]} pts)<br>
+    Double Chance: ${(bDouble*100).toFixed(2)}% (${bestConfig[1]} pts)<br>
+    Lifesteal: ${(bLifeSteal*100).toFixed(2)}% (${bestConfig[2]} pts)<br>
+    Critical Chance: ${(bCritChance*100).toFixed(2)}% (${bestConfig[3]} pts)<br>
+    Critical Damage: ${(bCritDamage*100).toFixed(2)}% (${bestConfig[4]} pts)<br>
+    Health Regen: ${(bRegen*100).toFixed(2)}% (${bestConfig[5]} pts)<br>
+    Damage Bonus: ${(bestConfig[6]*15).toFixed(2)}% (${bestConfig[6]} pts)<br><br>
+    <strong>Overall Score:</strong> ${bestScoreNote}/100
+`;
 
-    document.getElementById('bestBuild').innerHTML = `
-        <strong>Best Build (${totalBonusPoints} sub-stats):</strong><br>
-        Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
-        Average Lifesteal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
-        Average Health Regen: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
-        Attack Speed: ${bAtkSpeed.toFixed(2)}% (${bestConfig[0]} pts)<br>
-        Double Chance: ${(bDouble*100).toFixed(2)}% (${bestConfig[1]} pts)<br>
-        Lifesteal: ${(bLifeSteal*100).toFixed(2)}% (${bestConfig[2]} pts)<br>
-        Critical Chance: ${(bCritChance*100).toFixed(2)}% (${bestConfig[3]} pts)<br>
-        Critical Damage: ${(bCritDamage*100).toFixed(2)}% (${bestConfig[4]} pts)<br>
-        Health Regen: ${(bRegen*100).toFixed(2)}% (${bestConfig[5]} pts)<br>
-        Damage Bonus: ${(bestConfig[6]*15).toFixed(2)}% (${bestConfig[6]} pts)<br><br>
-        <strong>Overall Score:</strong> ${bestScoreNote}/100
-    `;
+const canvases = [];
+for(let i = 1; i <= 9; i++){
+    canvases.push(document.getElementById(`battleCanvas${i}`));
+}
 
-    const canvas = document.getElementById('battleCanvas');
-    const ctx = canvas.getContext('2d');
 
-    let player = {x:100, y:200, hp:hp, maxHp:hp, atkSpeed:attackSpeed, dbl:doubleHitChance, crit:critChance, critD:critDamageBonus, ls:lifeSteal, regen:regen, dmg:damage, dmgBonus:damageBonus};
-    let best = {x:500, y:200, hp:hp, maxHp:hp, atkSpeed:bAtkSpeed, dbl:bDouble, crit:bCritChance, critD:bCritDamage, ls:bLifeSteal, regen:bRegen, dmg:damage, dmgBonus:bDamageBonus};
+const contexts = canvases.map(c => c.getContext('2d'));
 
-    let messages = [];
-    let projectiles = [];
-    let lastRegen = 0;
+let battles = contexts.map(() => ({
+    player: {x:100, y:200, hp:hp*hpMultiplier, maxHp:hp*hpMultiplier, baseHp:hp, atkSpeed:attackSpeed, dbl:doubleHitChance, crit:critChance, critD:critDamageBonus, ls:lifeSteal, regen:regen, dmg:damage, dmgBonus:damageBonus},
+    best: {x:500, y:200, hp:hp*hpMultiplier, maxHp:hp*hpMultiplier, baseHp:hp, atkSpeed:bAtkSpeed, dbl:bDouble, crit:bCritChance, critD:bCritDamage, ls:bLifeSteal, regen:bRegen, dmg:damage, dmgBonus:bDamageBonus},
+    messages: [],
+    projectiles: [],
+    lastRegen: 0,
+    lastTime: 0,
+    playerTimer: 0,
+    bestTimer: 0,
+    firstAttackDone: false
+}));
 
-    function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle='blue';
-        ctx.fillRect(player.x-20, player.y-20, 40, 40);
-        ctx.fillStyle='red';
-        ctx.fillRect(player.x-25, player.y-30, 50*(player.hp/player.maxHp), 5);
 
-        ctx.fillStyle='purple';
-        ctx.fillRect(best.x-20, best.y-20, 40,40);
-        ctx.fillStyle='red';
-        ctx.fillRect(best.x-25, best.y-30, 50*(best.hp/best.maxHp),5);
 
-        for(let i=0;i<messages.length;i++){
-            ctx.font='bold 16px Arial';
-            ctx.fillStyle=messages[i].color;
-            ctx.fillText(messages[i].text, messages[i].x, messages[i].y);
-            messages[i].y -= 0.5;
-            messages[i].alpha -= 0.003;
-        }
-        messages = messages.filter(m=>m.alpha>0);
 
-        for(let i=0;i<projectiles.length;i++){
-            ctx.fillStyle = projectiles[i].color;
-            ctx.beginPath();
-            ctx.arc(projectiles[i].x, projectiles[i].y, 5, 0, 2*Math.PI);
-            ctx.fill();
-            projectiles[i].x += projectiles[i].vx;
-            projectiles[i].y += projectiles[i].vy;
-        }
-        projectiles = projectiles.filter(p => !p.hit && p.x>0 && p.x<canvas.width);
+function draw(ctx, battle) {
+    const { player, best, messages, projectiles } = battle;
+
+    // Fond noir
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, 600, 300);
+
+    // Joueur vert
+    ctx.fillStyle='green';
+    ctx.fillRect(player.x-20, player.y-20, 40, 40);
+    ctx.fillStyle='red';
+    ctx.fillRect(player.x-25, player.y-30, 50*(player.hp/player.maxHp), 5);
+
+    // Best bleu
+    ctx.fillStyle='blue';
+    ctx.fillRect(best.x-20, best.y-20, 40,40);
+    ctx.fillStyle='red';
+    ctx.fillRect(best.x-25, best.y-30, 50*(best.hp/best.maxHp),5);
+
+    // Messages
+    for(let i=0;i<messages.length;i++){
+        ctx.font='bold 16px Arial';
+        ctx.fillStyle=messages[i].color;
+        ctx.fillText(messages[i].text, messages[i].x, messages[i].y);
+        messages[i].y -= 0.5;
+        messages[i].alpha -= 0.003;
     }
+    battle.messages = messages.filter(m=>m.alpha>0);
 
-    function attack(attacker, defender){
-        let hits = 1;
-        if(Math.random() < attacker.dbl) hits = 2;
-
-        let baseDx = defender.x - attacker.x;
-        let baseDy = defender.y - attacker.y;
-        let baseDist = Math.sqrt(baseDx*baseDx + baseDy*baseDy);
-        let dirX = baseDx / baseDist;
-        let dirY = baseDy / baseDist;
-
-        for(let i=0;i<hits;i++){
-            let offsetX = 0;
-            let offsetY = 0;
-            if(hits === 2){
-                let separation = (i === 0 ? -10 : 120);
-                offsetX = dirX * separation;
-                offsetY = dirY * separation;
-            }
-            let dx = defender.x - (attacker.x + offsetX);
-            let dy = defender.y - (attacker.y + offsetY);
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            let vx = dx / dist * 5;
-            let vy = dy / dist * 5;
-
-            projectiles.push({
-                x: attacker.x + offsetX,
-                y: attacker.y + offsetY,
-                vx: vx,
-                vy: vy,
-                color: 'orange',
-                dmg: attacker.dmg * attacker.dmgBonus,
-                attacker: attacker,
-                target: defender
-            });
-        }
+    // Projectiles
+    for(let i=0;i<projectiles.length;i++){
+        ctx.fillStyle = projectiles[i].color;
+        ctx.beginPath();
+        ctx.arc(projectiles[i].x, projectiles[i].y, 5, 0, 2*Math.PI);
+        ctx.fill();
+        projectiles[i].x += projectiles[i].vx;
+        projectiles[i].y += projectiles[i].vy;
     }
+    battle.projectiles = projectiles.filter(p => !p.hit && p.x>0 && p.x<600);
+}
 
-    function hitProjectiles(){
-        projectiles.forEach(p=>{
-            let dx = Math.abs(p.x - p.target.x);
-            let dy = Math.abs(p.y - p.target.y);
-            if(dx<5 && dy<5){
-                let isCrit = Math.random() < p.attacker.crit;
-                let dmg = Math.floor(isCrit ? p.dmg * p.attacker.critD : p.dmg);
-                p.target.hp -= dmg;
-                messages.push({x:p.target.x-10, y:p.target.y-25, text:'-'+dmg, color:isCrit?'red':'orange', alpha:1});
 
-                if (p.attacker.ls > 0) {
-                    let healPotential = Math.floor(dmg * p.attacker.ls);
-                    let healReal = Math.max(0, Math.min(healPotential, p.attacker.maxHp - p.attacker.hp));
-                    p.attacker.hp += healReal;
-                    messages.push({x: p.attacker.x - 10, y: p.attacker.y - 45, text: '+ ' + healReal, color: 'green', alpha: 1});
-                }
 
-                p.hit=true;
-            }
+
+function attack(attacker, defender, battle){
+    let hits = 1;
+    if(Math.random() < attacker.dbl) hits = 2;
+
+    let baseDx = defender.x - attacker.x;
+    let baseDy = defender.y - attacker.y;
+    let baseDist = Math.sqrt(baseDx*baseDx + baseDy*baseDy);
+    let dirX = baseDx / baseDist;
+    let dirY = baseDy / baseDist;
+
+    for(let i=0;i<hits;i++){
+        let offsetX = 0;
+        let offsetY = 0;
+        if(hits === 2){
+            let separation = (i === 0 ? -10 : 120);
+            offsetX = dirX * separation;
+            offsetY = dirY * separation;
+        }
+        let dx = defender.x - (attacker.x + offsetX);
+        let dy = defender.y - (attacker.y + offsetY);
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        let vx = dx / dist * 5;
+        let vy = dy / dist * 5;
+
+        battle.projectiles.push({
+            x: attacker.x + offsetX,
+            y: attacker.y + offsetY,
+            vx: vx,
+            vy: vy,
+            color: 'orange',
+            dmg: attacker.dmg * attacker.dmgBonus,
+            attacker: attacker,
+            target: defender,
+            hit: false
         });
     }
-
-    let lastTime = 0;
-    let playerTimer = 0;
-    let bestTimer = 0;
-    let firstAttackDone = false;
-
-    function loop(timestamp){
-        if(!lastTime) lastTime=timestamp;
-        let dt = timestamp - lastTime;
-        lastTime = timestamp;
-
-        playerTimer += dt;
-        bestTimer += dt;
-        lastRegen += dt;
-
-        if(!firstAttackDone) {
-            attack(player, best);
-            attack(best, player);
-            playerTimer = 0;
-            bestTimer = 0;
-            firstAttackDone = true;
-        } else {
-            let playerInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+player.atkSpeed/100));
-            let bestInterval = 1000 / (BASE_ATTACKS_PER_SECOND*(1+best.atkSpeed/100));
-
-            if(playerTimer >= playerInterval){ attack(player, best); playerTimer -= playerInterval; }
-            if(bestTimer >= bestInterval){ attack(best, player); bestTimer -= bestInterval; }
-        }
-
-        if(lastRegen>=1000){
-            [player,best].forEach(unit=>{
-                if(unit.regen>0){
-                    let healPotential = Math.floor(unit.maxHp * unit.regen);
-                    let healReal = Math.max(0, Math.min(healPotential, unit.maxHp - unit.hp));
-                    unit.hp += healReal;
-                    messages.push({x: unit.x-10, y: unit.y-45, text:'+ '+healReal, color:'green', alpha:1});
-                }
-            });
-            lastRegen=0;
-        }
-
-        hitProjectiles();
-        draw();
-
-        if(player.hp<=0 || best.hp<=0){
-            ctx.font='bold 24px Arial';
-            ctx.fillStyle='yellow';
-            ctx.fillText(player.hp<=0?'Best build wins!':'Player wins!',200,150);
-        } else requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
 }
+
+
+
+function hitProjectiles(battle){
+    battle.projectiles.forEach(p=>{
+        let dx = Math.abs(p.x - p.target.x);
+        let dy = Math.abs(p.y - p.target.y);
+        if(dx<5 && dy<5){
+            let isCrit = Math.random() < p.attacker.crit;
+            let dmg = Math.floor(isCrit ? p.dmg * p.attacker.critD : p.dmg);
+            p.target.hp -= dmg;
+            battle.messages.push({x:p.target.x-10, y:p.target.y-25, text:'-'+dmg, color:isCrit?'red':'orange', alpha:1});
+
+            if (p.attacker.ls > 0) {
+                let healPotential = Math.floor(dmg * p.attacker.ls);
+                let healReal = Math.max(0, Math.min(healPotential, p.attacker.maxHp - p.attacker.hp));
+                p.attacker.hp += healReal;
+                battle.messages.push({x: p.attacker.x - 10, y: p.attacker.y - 45, text: '+ ' + healReal, color: 'green', alpha: 1});
+            }
+
+            p.hit=true;
+        }
+    });
+}
+
+
+let lastTime = 0;
+let playerTimer = 0;
+let bestTimer = 0;
+let firstAttackDone = false;
+
+function loop(timestamp, ctx, battle) {
+    if(!battle.lastTime) battle.lastTime = timestamp;
+    let dt = timestamp - battle.lastTime;
+    battle.lastTime = timestamp;
+
+    battle.playerTimer += dt;
+    battle.bestTimer += dt;
+    battle.lastRegen += dt;
+
+    if(!battle.firstAttackDone) {
+        attack(battle.player, battle.best, battle);
+        attack(battle.best, battle.player, battle);
+        battle.playerTimer = 0;
+        battle.bestTimer = 0;
+        battle.firstAttackDone = true;
+    } else {
+        let playerInterval = 1000 / (1/1.7*(1+battle.player.atkSpeed/100));
+        let bestInterval = 1000 / (1/1.7*(1+battle.best.atkSpeed/100));
+
+        if(battle.playerTimer >= playerInterval){ attack(battle.player, battle.best, battle); battle.playerTimer -= playerInterval; }
+        if(battle.bestTimer >= bestInterval){ attack(battle.best, battle.player, battle); battle.bestTimer -= bestInterval; }
+    }
+
+    if(battle.lastRegen>=1000){
+        [battle.player,battle.best].forEach(unit=>{
+            if(unit.regen>0){
+                let healPotential = Math.floor(unit.baseHp * unit.regen);
+                let healReal = Math.max(0, Math.min(healPotential, unit.maxHp - unit.hp));
+                unit.hp += healReal;
+                battle.messages.push({x: unit.x-10, y: unit.y-45, text:'+ '+healReal, color:'green', alpha:1});
+            }
+        });
+        battle.lastRegen=0;
+    }
+
+    hitProjectiles(battle);
+    draw(ctx, battle);
+
+    if(battle.player.hp<=0 || battle.best.hp<=0){
+        ctx.font='bold 24px Arial';
+        ctx.fillStyle='yellow';
+        ctx.fillText(battle.player.hp<=0?'Best build wins!':'Player wins!',200,150);
+    } else {
+        requestAnimationFrame(ts => loop(ts, ctx, battle));
+    }
+}
+
+battles.forEach((battle, i) => {
+    requestAnimationFrame(ts => loop(ts, contexts[i], battle));
+});
+
+
+
+updateURL();
+}
+
+
+window.onload = () => {
+    loadFromURL();
+    calculate();
+};
+
 </script>
 </body>
 </html>
