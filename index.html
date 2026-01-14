@@ -35,11 +35,41 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <body>
 <div class="container">
 <h2>Battle Simulator Forge Master</h2>
+</br>
+<h3>General Settings</h3>
 <label>Base Damage: <input type="number" id="damage" value="30000"></label>
 <label>Base HP: <input type="number" id="hp" value="200000"></label>
+
 <label>PvP HP multiplier: <input type="number" id="hpMultiplier" value="5"></label>
-<label>Total number of Sub-stats assigned to create the "Best Build": <input type="number" id="bonusPoints" value="12"></label>
-<h3>Distribute your sub-stats:</h3>
+
+
+</br>
+<h3>Best Build Settings</h3>
+
+<label>Type of weapon:
+    <select id="bestBuildWeaponType">
+        <option value="Ranged" selected>Ranged</option>
+        <option value="Melee">Melee</option>
+    </select>
+</label>
+
+<label>Total number of sub-stats: <input type="number" id="bonusPoints" value="12"></label>
+
+
+
+
+
+
+
+</br>
+<h3>Player Settings:</h3>
+<label>Type of weapon: 
+    <select id="weaponType">
+        <option value="Ranged" selected>Ranged</option>
+        <option value="Melee">Melee</option>
+    </select>
+</label>
+<h4>Distribute your sub-stats:</h4>
 <label>Attack Speed (+40% per sub-stat): <input type="number" id="bonusAttackSpeed" value="2"></label>
 <label>Double Chance (+40% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
 <label>Lifesteal (+20% per sub-stat): <input type="number" id="bonusLifeSteal" value="2"></label>
@@ -47,6 +77,10 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <label>Critical Damage (+100% per sub-stat): <input type="number" id="bonusCritDamage" value="2"></label>
 <label>Health Regen (+6% per sub-stat): <input type="number" id="bonusRegen" value="1"></label>
 <label>Damage (+15% per sub-stat): <input type="number" id="bonusDamage" value="1"></label>
+<label>Melee Damage (+50% per sub-stat): <input type="number" id="bonusMeleeDamage" value="0"></label>
+<label>Block Chance (+5% per sub-stat): <input type="number" id="bonusBlock" value="0"></label>
+<label>HP (+15% per sub-stat): <input type="number" id="bonusHP" value="0"></label>
+
 <button onclick="calculate()">Calculate and Start Battle</button>
 <div class="result" id="result"></div>
 <div class="best-build" id="bestBuild"></div>
@@ -67,11 +101,16 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <script>
 
 function updateURL() {
-    const fields = [
-        'damage', 'hp', 'hpMultiplier', 'bonusPoints',
-        'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
-        'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage'
-    ];
+const fields = [
+    'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+    'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+    'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
+    'bonusMeleeDamage', 'bonusBlock',
+    'weaponType',
+    'bestBuildWeaponType'  // <-- ajouté pour l'URL
+];
+
+
 
     const params = new URLSearchParams();
 
@@ -85,11 +124,15 @@ function updateURL() {
 
 function loadFromURL() {
     const params = new URLSearchParams(window.location.search);
-    const fields = [
-        'damage', 'hp', 'hpMultiplier', 'bonusPoints',
-        'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
-        'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage'
-    ];
+const fields = [
+    'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+    'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+    'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
+    'bonusMeleeDamage', 'bonusBlock',
+    'weaponType',
+    'bestBuildWeaponType'  // <-- ajouté pour l'URL
+];
+
 
     fields.forEach(id => {
         if(params.has(id)) {
@@ -98,15 +141,25 @@ function loadFromURL() {
     });
 }
 
+const MELEE_SPEED = 2; // pixels par frame
+const MELEE_MIN_DISTANCE = 50; // distance minimale entre les personnages Melee
+const MELEE_APPROACH_TIME = 3.5; // secondes pour atteindre un adversaire à distance
+
+
+
 
 function calculate() {
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
     let damage = parseFloat(document.getElementById('damage').value);
     let hp = parseFloat(document.getElementById('hp').value);
+	let weaponType = document.getElementById('weaponType').value; // "Ranged" ou "Melee"
     let hpMultiplier = parseFloat(document.getElementById('hpMultiplier').value) || 1;
     let totalBonusPoints = parseInt(document.getElementById('bonusPoints').value);
+	let bestBuildWeaponType = document.getElementById('bestBuildWeaponType').value; // Auto / Ranged / Melee
 
+	
+	
     let bonusAttackSpeed = parseInt(document.getElementById('bonusAttackSpeed').value) || 0;
     let bonusDoubleHit = parseInt(document.getElementById('bonusDoubleHit').value) || 0;
     let bonusLifeSteal = parseInt(document.getElementById('bonusLifeSteal').value) || 0;
@@ -114,106 +167,255 @@ function calculate() {
     let bonusCritDamage = parseInt(document.getElementById('bonusCritDamage').value) || 0;
     let bonusRegen = parseInt(document.getElementById('bonusRegen').value) || 0;
     let bonusDamage = parseInt(document.getElementById('bonusDamage').value) || 0;
+	let bonusMeleeDamage = parseInt(document.getElementById('bonusMeleeDamage').value) || 0;
+	let bonusBlock = parseInt(document.getElementById('bonusBlock').value) || 0;
+	let bonusHP = parseInt(document.getElementById('bonusHP').value) || 0;
 
-    let attackSpeed = 0.4 * bonusAttackSpeed * 100;
-    let doubleHitChance = Math.min(1, 0.4 * bonusDoubleHit);
-    let lifeSteal = 0.2 * bonusLifeSteal;
-    let critChance = 0.12 * bonusCritChance;
-    let critDamageBonus = 1.2 + 1.0 * bonusCritDamage;
-    let regen = 0.06 * bonusRegen;
-    let damageBonus = 1 + 0.15 * bonusDamage;
 
-    function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, hp, dmgBonus) {
-        let dpsSingle = damage * dmgBonus * (1 + critChance * (critDamage - 1));
-        let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle + damage * dmgBonus * (1 + critChance * (critDamage - 1)));
-        let dpsPerSecond = dpsAvg * (1 + atkSpeed / 100) * BASE_ATTACKS_PER_SECOND;
-        let lifeStealPerSecond = dpsPerSecond * lifeSteal;
-        let regenPerSecond = hp * regen;
-        let score = dpsPerSecond + (lifeStealPerSecond * 1.5) + regenPerSecond;
-        return {score, dpsPerSecond, lifeStealPerSecond, regenPerSecond};
-    }
+// --- Caps maximum par sous-stat ---
+const CAPS = {
+    attackSpeed: 480,
+    doubleHit: 1,        // 100%
+    lifeSteal: 2.4,      // 240%
+    critChance: 1,       // 100%
+    critDamage: 12,      // 1200%
+    regen: 0.72,         // 72%
+    damage: 3.6,         // 360%
+    meleeDamage: 6,      // 600%
+    block: 0.6           // 60%
+};
 
-    let playerStats = computeScore(damage, attackSpeed, doubleHitChance, critChance, critDamageBonus, lifeSteal, regen, hp, damageBonus);
+// --- Limite par bonus à 12 points ---
+function capPoints(points, maxPoints = 12){
+    return Math.min(points, maxPoints);
+}
+
+bonusAttackSpeed = capPoints(bonusAttackSpeed);
+bonusDoubleHit = capPoints(bonusDoubleHit);
+bonusLifeSteal = capPoints(bonusLifeSteal);
+bonusCritChance = capPoints(bonusCritChance);
+bonusCritDamage = capPoints(bonusCritDamage);
+bonusRegen = capPoints(bonusRegen);
+bonusDamage = capPoints(bonusDamage);
+bonusMeleeDamage = capPoints(bonusMeleeDamage);
+bonusBlock = capPoints(bonusBlock);
+bonusHP = capPoints(bonusHP);
+
+// --- Calcul avec cap ---
+let attackSpeed = Math.min(0.4 * bonusAttackSpeed * 100, CAPS.attackSpeed);
+let doubleHitChance = Math.min(0.4 * bonusDoubleHit, CAPS.doubleHit);
+let lifeSteal = Math.min(0.2 * bonusLifeSteal, CAPS.lifeSteal);
+let critChance = Math.min(0.12 * bonusCritChance, CAPS.critChance);
+let critDamageBonus = Math.min(1.2 + 1.0 * bonusCritDamage, CAPS.critDamage);
+let regen = Math.min(0.06 * bonusRegen, CAPS.regen);
+let damageBonus = Math.min(1 + 0.15 * bonusDamage, CAPS.damage);
+let meleeDamageBonus = 1;
+if(weaponType === "Melee" && bonusMeleeDamage > 0){
+    meleeDamageBonus = Math.min(1 + 0.5 * bonusMeleeDamage, CAPS.meleeDamage);
+}
+let blockChance = Math.min(0.05 * bonusBlock, CAPS.block);
+
+// HP séparé
+let hpBonusMultiplier = 1 + 0.15 * bonusHP; // seulement HP max
+let maxHP = hp * hpBonusMultiplier * hpMultiplier;
+
+
+function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, maxHp, dmgBonus, meleeBonus = 1, blockChance = 0) {
+    // DPS
+    let dpsSingle = damage * dmgBonus * meleeBonus * (1 + critChance * (critDamage - 1));
+    let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle + dpsSingle); // double hit
+    let dpsPerSecond = dpsAvg * (1 + atkSpeed / 100) * BASE_ATTACKS_PER_SECOND;
+
+    // Lifesteal
+    let lifeStealPerSecond = dpsPerSecond * lifeSteal;
+
+    // Regen prend en compte le HP total (bonus inclus)
+    let regenPerSecond = maxHp * regen;
+
+    // Score global pondéré
+    // ⚡ On ajoute contribution du block: chaque % de block vaut 50% du HP max
+    let score = dpsPerSecond + lifeStealPerSecond * 1.5 + regenPerSecond + blockChance * maxHp * 0.5;
+
+    return {score, dpsPerSecond, lifeStealPerSecond, regenPerSecond};
+}
+
+
+
+
+	let playerStats = computeScore(damage, attackSpeed, doubleHitChance, critChance, critDamageBonus, lifeSteal, regen, maxHP, damageBonus, meleeDamageBonus, blockChance);
 
     let bestScore = 0;
     let bestConfig = null;
 
-    function generateConfigs(points, config = [0,0,0,0,0,0,0], index = 0) {
-        if(index === config.length - 1) {
-            config[index] = points;
-            evaluateConfig(config);
-            return;
-        }
-        for(let i=0; i<=points; i++){
-            config[index] = i;
-            generateConfigs(points - i, config, index + 1);
-        }
+	function generateConfigs(points, config = [0,0,0,0,0,0,0,0,0,0], index = 0) {
+		if(index === config.length - 1) {
+			config[index] = points;
+			evaluateConfig(config);
+			return;
+		}
+		for(let i=0; i<=points; i++){
+			config[index] = i;
+			generateConfigs(points - i, config, index + 1);
+		}
+	}
+
+function evaluateConfig(cfg){
+    // Limite par bonus
+    for(let i=0;i<cfg.length;i++) cfg[i] = Math.min(cfg[i],12);
+
+    let atkSpeed = Math.min(0.4 * cfg[0] * 100, CAPS.attackSpeed);
+    let dblHit = Math.min(0.4 * cfg[1], CAPS.doubleHit);
+    let ls = Math.min(0.2 * cfg[2], CAPS.lifeSteal);
+    let critC = Math.min(0.12 * cfg[3], CAPS.critChance);
+    let critD = Math.min(1.2 + cfg[4], CAPS.critDamage);
+    let reg = Math.min(0.06 * cfg[5], CAPS.regen);
+    let dmgBonus = Math.min(1 + 0.15 * cfg[6], CAPS.damage);
+
+    // ✅ Calcul du bonus melee pour le score
+// ✅ Calcul du bonus melee pour le score selon type d'arme
+let meleeBonus = 1;
+if(bestBuildWeaponType === "Melee") {
+    meleeBonus = Math.min(1 + 0.5 * cfg[7], CAPS.meleeDamage);
+}
+
+    let block = Math.min(0.05 * cfg[8], CAPS.block);
+
+    // HP
+    let hpBonusMultiplier = 1 + 0.15 * cfg[9];
+    let effectiveHP = hp * hpBonusMultiplier * hpMultiplier;
+
+    // --- Block ajouté dans le score ---
+    let stats = computeScore(
+        damage,
+        atkSpeed,
+        dblHit,
+        critC,
+        critD,
+        ls,
+        reg,
+        hp,
+        dmgBonus,
+        meleeBonus
+    );
+
+    // Ajouter contribution du block au score (simple poids)
+    stats.score += block * hp * 0.5;  // chaque % de block vaut 0.5*base HP
+
+    if(stats.score > bestScore){
+        bestScore = stats.score;
+        bestConfig = cfg.slice();
     }
+}
 
-    function evaluateConfig(cfg){
-        let atkSpeed = 0.4 * cfg[0] * 100;
-        let dblHit = Math.min(1, 0.4 * cfg[1]);
-        let ls = 0.2 * cfg[2];
-        let critC = 0.12 * cfg[3];
-        let critD = 1.2 + cfg[4];
-        let reg = 0.06 * cfg[5];
-        let dmgBonus = 1 + 0.15 * cfg[6];
 
-        let stats = computeScore(damage, atkSpeed, dblHit, critC, critD, ls, reg, hp, dmgBonus);
 
-        if(stats.score > bestScore){
-            bestScore = stats.score;
-            bestConfig = cfg.slice();
-        }
-    }
 
     generateConfigs(totalBonusPoints);
 
-    let bAtkSpeed = bestConfig[0] * 40;
-    let bDouble = Math.min(1, bestConfig[1] * 0.4);
-    let bLifeSteal = bestConfig[2] * 0.2;
-    let bCritChance = 0.12 * bestConfig[3];
-    let bCritDamage = 1.2 + bestConfig[4];
-    let bRegen = 0.06 * bestConfig[5];
-    let bDamageBonus = 1 + 0.15 * bestConfig[6];
+	let bAtkSpeed = bestConfig[0] * 40;
+	let bDouble = Math.min(1, bestConfig[1] * 0.4);
+	let bLifeSteal = bestConfig[2] * 0.2;
+	let bCritChance = 0.12 * bestConfig[3];
+	let bCritDamage = 1.2 + bestConfig[4];
+	let bRegen = 0.06 * bestConfig[5];
+	let bDamageBonus = 1 + 0.15 * bestConfig[6];
+	
+	
+// Sélection du type de weapon du best build indépendamment du joueur
+let bestWeaponOptions = [];
+let bestBuildChoice = bestBuildWeaponType; // Auto / Ranged / Melee
 
-    let bestStats = computeScore(damage, bAtkSpeed, bDouble, bCritChance, bCritDamage, bLifeSteal, bRegen, hp, bDamageBonus);
+if(bestBuildChoice === "Auto"){
+    bestWeaponOptions = ["Ranged", "Melee"];
+} else {
+    bestWeaponOptions = [bestBuildChoice];
+}
+
+let bestScoreWithWeapon = 0;
+let bestWeaponTypeChosen = bestWeaponOptions[0];
+let bestMeleeBonusChosen = 1;
+
+bestWeaponOptions.forEach(bestWeapon => {
+    let meleeBonus = (bestWeapon === "Melee") ? Math.min(1 + 0.5 * bestConfig[7], CAPS.meleeDamage) : 1;
+
+    let stats = computeScore(
+        damage,
+        bAtkSpeed,
+        bDouble,
+        bCritChance,
+        bCritDamage,
+        bLifeSteal,
+        bRegen,
+        hp,
+        bDamageBonus,
+        meleeBonus
+    );
+
+    if(stats.score > bestScoreWithWeapon){
+        bestScoreWithWeapon = stats.score;
+        bestWeaponTypeChosen = bestWeapon;
+        bestMeleeBonusChosen = meleeBonus;
+    }
+});
+
+
+
+let bMelee = bestMeleeBonusChosen;
+let bBlock = Math.min(0.05 * bestConfig[8], CAPS.block);
+let bHP = 1 + 0.15 * bestConfig[9];
+let bestMaxHP = hp * bHP * hpMultiplier;
+
+// ⚡️ Assignation finale
+battleBestWeaponType = bestWeaponTypeChosen;
+
+let bestStats = computeScore(damage, bAtkSpeed, bDouble, bCritChance, bCritDamage, bLifeSteal, bRegen, bestMaxHP, bDamageBonus, bMelee, bBlock);
+
+
 
     let bestScoreNote = 100;
     let playerScoreNote = Math.round((playerStats.score / bestStats.score) * 100);
 
 // Calculer le total réel des sub-stats du joueur
-let playerSubStatsTotal = bonusAttackSpeed + bonusDoubleHit + bonusLifeSteal + bonusCritChance + bonusCritDamage + bonusRegen + bonusDamage;
+let playerSubStatsTotal = bonusAttackSpeed + bonusDoubleHit + bonusLifeSteal + bonusCritChance + bonusCritDamage + bonusRegen + bonusDamage + bonusMeleeDamage + bonusBlock + bonusHP;
 
 document.getElementById('result').innerHTML = `
     <strong>Player Build (${playerSubStatsTotal} sub-stats):</strong><br>
     Average DPS: ${playerStats.dpsPerSecond.toFixed(2)}<br>
     Average Lifesteal per second: ${playerStats.lifeStealPerSecond.toFixed(2)}<br>
     Average Health Regen: ${playerStats.regenPerSecond.toFixed(2)}<br><br>
-    Attack Speed: ${attackSpeed.toFixed(2)}% (${bonusAttackSpeed} pts)<br>
+    Attack Speed: ${(bonusAttackSpeed > 0 ? (bonusAttackSpeed*40).toFixed(2) : 0)}% (${bonusAttackSpeed} pts)<br>
     Double Chance: ${(doubleHitChance*100).toFixed(2)}% (${bonusDoubleHit} pts)<br>
     Lifesteal: ${(lifeSteal*100).toFixed(2)}% (${bonusLifeSteal} pts)<br>
     Critical Chance: ${(critChance*100).toFixed(2)}% (${bonusCritChance} pts)<br>
     Critical Damage: ${(critDamageBonus*100).toFixed(2)}% (${bonusCritDamage} pts)<br>
     Health Regen: ${(regen*100).toFixed(2)}% (${bonusRegen} pts)<br>
-    Damage Bonus: ${(bonusDamage*15).toFixed(2)}% (${bonusDamage} pts)<br><br>
+    Damage: ${(bonusDamage > 0 ? (bonusDamage*15).toFixed(2) : 0)}% (${bonusDamage} pts)<br>
+	Melee Damage: ${(weaponType === "Melee" && bonusMeleeDamage > 0 ? (bonusMeleeDamage*50).toFixed(2) : 0)}% (${bonusMeleeDamage} pts)<br>
+	Block Chance: ${(blockChance*100).toFixed(2)}% (${bonusBlock} pts)<br>
+    HP: ${(bonusHP > 0 ? (bonusHP*15).toFixed(2) : 0)}% (${bonusHP} pts)<br><br>
     <strong>Overall Score:</strong> ${playerScoreNote}/100
 `;
+
 
 document.getElementById('bestBuild').innerHTML = `
     <strong>Best Build (${totalBonusPoints} sub-stats):</strong><br>
     Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
     Average Lifesteal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
     Average Health Regen: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
-    Attack Speed: ${bAtkSpeed.toFixed(2)}% (${bestConfig[0]} pts)<br>
+    Attack Speed: ${(bestConfig[0] > 0 ? (bestConfig[0]*40).toFixed(2) : 0)}% (${bestConfig[0]} pts)<br>
     Double Chance: ${(bDouble*100).toFixed(2)}% (${bestConfig[1]} pts)<br>
     Lifesteal: ${(bLifeSteal*100).toFixed(2)}% (${bestConfig[2]} pts)<br>
     Critical Chance: ${(bCritChance*100).toFixed(2)}% (${bestConfig[3]} pts)<br>
     Critical Damage: ${(bCritDamage*100).toFixed(2)}% (${bestConfig[4]} pts)<br>
     Health Regen: ${(bRegen*100).toFixed(2)}% (${bestConfig[5]} pts)<br>
-    Damage Bonus: ${(bestConfig[6]*15).toFixed(2)}% (${bestConfig[6]} pts)<br><br>
+    Damage: ${(bestConfig[6] > 0 ? (bestConfig[6]*15).toFixed(2) : 0)}% (${bestConfig[6]} pts)<br>
+	Melee Damage: ${((bMelee - 1) * 100).toFixed(2)}% (${bestConfig[7]} pts)<br>
+	Block Chance: ${(bBlock * 100).toFixed(2)}% (${bestConfig[8]} pts)<br>
+	HP: ${(bestConfig[9] > 0 ? (bestConfig[9]*15).toFixed(2) : 0)}% (${bestConfig[9]} pts)<br><br>
+
     <strong>Overall Score:</strong> ${bestScoreNote}/100
 `;
+
 
 const canvases = [];
 for(let i = 1; i <= 9; i++){
@@ -224,8 +426,39 @@ for(let i = 1; i <= 9; i++){
 const contexts = canvases.map(c => c.getContext('2d'));
 
 let battles = contexts.map(() => ({
-    player: {x:100, y:200, hp:hp*hpMultiplier, maxHp:hp*hpMultiplier, baseHp:hp, atkSpeed:attackSpeed, dbl:doubleHitChance, crit:critChance, critD:critDamageBonus, ls:lifeSteal, regen:regen, dmg:damage, dmgBonus:damageBonus},
-    best: {x:500, y:200, hp:hp*hpMultiplier, maxHp:hp*hpMultiplier, baseHp:hp, atkSpeed:bAtkSpeed, dbl:bDouble, crit:bCritChance, critD:bCritDamage, ls:bLifeSteal, regen:bRegen, dmg:damage, dmgBonus:bDamageBonus},
+	player: {
+		x: 100, y: 200, hp: hp*hpMultiplier, maxHp: hp*hpMultiplier, baseHp: hp,
+		atkSpeed: attackSpeed, dbl: doubleHitChance, crit: critChance, critD: critDamageBonus,
+		ls: lifeSteal, regen: regen, dmg: damage, dmgBonus: damageBonus,
+		meleeDamageBonus: meleeDamageBonus,
+		blockChance: blockChance,
+		weaponType: weaponType,
+		speed: MELEE_SPEED
+	},
+
+	best: {
+		x: 500, y: 200,
+		hp: bestMaxHP,
+		maxHp: bestMaxHP,
+		baseHp: hp,
+
+		atkSpeed: bAtkSpeed,
+		dbl: bDouble,
+		crit: bCritChance,
+		critD: bCritDamage,
+		ls: bLifeSteal,
+		regen: bRegen,
+		dmg: damage,
+		dmgBonus: bDamageBonus,
+
+		meleeDamageBonus: bMelee,
+		blockChance: bBlock,
+
+		weaponType: battleBestWeaponType, // maintenant le bot peut être Ranged ou Melee
+		speed: 0
+
+	},
+
     messages: [],
     projectiles: [],
     lastRegen: 0,
@@ -234,6 +467,7 @@ let battles = contexts.map(() => ({
     bestTimer: 0,
     firstAttackDone: false
 }));
+
 
 
 
@@ -283,6 +517,65 @@ function draw(ctx, battle) {
 
 
 function attack(attacker, defender, battle){
+	// Si l'attaquant est Melee, attaque directe
+// Si l'attaquant est Melee, attaque directe
+if(attacker.weaponType === "Melee") {
+    // Vérifier la distance minimale pour attaquer
+    let dx = defender.x - attacker.x;
+    let dy = defender.y - attacker.y;
+    let distance = Math.sqrt(dx*dx + dy*dy);
+    if(distance > MELEE_MIN_DISTANCE) return;
+
+    // Nombre de hits selon doubleHitChance
+    let hits = 1;
+    if(Math.random() < attacker.dbl) hits = 2;
+
+    for(let i=0; i<hits; i++) {
+        let isCrit = Math.random() < attacker.crit;
+        let dmgBase = attacker.dmg * attacker.dmgBonus;
+        if(attacker.weaponType === "Melee" && attacker.meleeDamageBonus) dmgBase *= attacker.meleeDamageBonus;
+        let dmg = Math.floor(isCrit ? dmgBase * attacker.critD : dmgBase);
+
+        // Blocage
+        if(Math.random() < defender.blockChance) {
+            battle.messages.push({
+                x: defender.x - 10,
+                y: defender.y - 25 - i*15, // ← chaque hit a son propre décalage
+                text: 'BLOCK',
+                color: 'violet',
+                alpha: 1
+            });
+            continue; // attaqué mais bloqué
+        }
+
+        defender.hp -= dmg;
+
+        // Message dégâts séparé pour chaque hit
+        battle.messages.push({
+            x: defender.x - 10,
+            y: defender.y - 25 - i*15, // ← chaque hit a son propre décalage
+            text: '-' + dmg,
+            color: isCrit ? 'red' : 'orange',
+            alpha: 1
+        });
+
+        // Lifesteal séparé pour chaque hit
+        if(attacker.ls > 0) {
+            let heal = Math.floor(dmg * attacker.ls);
+            attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal);
+            battle.messages.push({
+                x: attacker.x - 10,
+                y: attacker.y - 45 - i*15, // ← décalage propre à chaque hit
+                text: '+ ' + heal,
+                color: 'green',
+                alpha: 1
+            });
+        }
+    }
+
+    return; // pas besoin de projectiles
+}
+
     let hits = 1;
     if(Math.random() < attacker.dbl) hits = 2;
 
@@ -328,15 +621,47 @@ function hitProjectiles(battle){
         let dy = Math.abs(p.y - p.target.y);
         if(dx<5 && dy<5){
             let isCrit = Math.random() < p.attacker.crit;
-            let dmg = Math.floor(isCrit ? p.dmg * p.attacker.critD : p.dmg);
-            p.target.hp -= dmg;
-            battle.messages.push({x:p.target.x-10, y:p.target.y-25, text:'-'+dmg, color:isCrit?'red':'orange', alpha:1});
+            let dmgBase = p.dmg;
+            if(p.attacker.weaponType === "Melee" && p.attacker.meleeDamageBonus){
+                dmgBase *= p.attacker.meleeDamageBonus;
+            }
+            let dmg = Math.floor(isCrit ? dmgBase * p.attacker.critD : dmgBase);
+
+            // Générer un offset vertical pour ce hit, qu'il soit bloqué ou non
+            let offsetY = (p.attacker.dbl > 0) ? (-15 + Math.random() * 10) : 0;
+
+            if(Math.random() < p.target.blockChance){
+                battle.messages.push({
+                    x: p.target.x - 10,
+                    y: p.target.y - 25 + offsetY, // ← même décalage que pour le hit normal
+                    text: 'BLOCK',
+                    color: 'violet',
+                    alpha: 1
+                });
+            } else {
+                p.target.hp -= dmg;
+
+                battle.messages.push({
+                    x: p.target.x - 10,
+                    y: p.target.y - 25 + offsetY,
+                    text:'-'+dmg,
+                    color:isCrit?'red':'orange',
+                    alpha:1
+                });
+            }
 
             if (p.attacker.ls > 0) {
                 let healPotential = Math.floor(dmg * p.attacker.ls);
                 let healReal = Math.max(0, Math.min(healPotential, p.attacker.maxHp - p.attacker.hp));
                 p.attacker.hp += healReal;
-                battle.messages.push({x: p.attacker.x - 10, y: p.attacker.y - 45, text: '+ ' + healReal, color: 'green', alpha: 1});
+
+                battle.messages.push({
+                    x: p.attacker.x - 10,
+                    y: p.attacker.y - 45 + offsetY,
+                    text: '+ ' + healReal,
+                    color: 'green',
+                    alpha: 1
+                });
             }
 
             p.hit=true;
@@ -360,17 +685,53 @@ function loop(timestamp, ctx, battle) {
     battle.lastRegen += dt;
 
     if(!battle.firstAttackDone) {
-        attack(battle.player, battle.best, battle);
-        attack(battle.best, battle.player, battle);
-        battle.playerTimer = 0;
-        battle.bestTimer = 0;
-        battle.firstAttackDone = true;
+		attack(battle.player, battle.best, battle);   // attaque du joueur
+		attack(battle.best, battle.player, battle);   // attaque du best build
+		attack(battle.player, battle.best, battle);   // attaque supplémentaire du joueur
+		attack(battle.best, battle.player, battle);   // attaque supplémentaire du best build
+		battle.playerTimer = 0;
+		battle.bestTimer = 0;
+		battle.firstAttackDone = true;
     } else {
+			if(battle.player.weaponType === "Melee"){
+				let dx = battle.best.x - battle.player.x;
+				let dy = battle.best.y - battle.player.y;
+				let distance = Math.sqrt(dx*dx + dy*dy);
+
+				if(distance > MELEE_MIN_DISTANCE){
+					// déplacement fixe par frame
+					battle.player.x += (dx / distance) * battle.player.meleeSpeed * dt;
+					battle.player.y += (dy / distance) * battle.player.meleeSpeed * dt;
+				}
+				// Sinon on est à portée, on laisse playerTimer gérer les attaques
+			}
+
+
+			// ✅ Déplacement du best build si melee
+			if(battle.best.weaponType === "Melee"){
+				let dx = battle.player.x - battle.best.x;
+				let dy = battle.player.y - battle.best.y;
+				let distance = Math.sqrt(dx*dx + dy*dy);
+
+				if(distance > MELEE_MIN_DISTANCE){
+					battle.best.x += (dx / distance) * battle.best.meleeSpeed * dt;
+					battle.best.y += (dy / distance) * battle.best.meleeSpeed * dt;
+				}
+			}
+
+
+
         let playerInterval = 1000 / (1/1.7*(1+battle.player.atkSpeed/100));
         let bestInterval = 1000 / (1/1.7*(1+battle.best.atkSpeed/100));
 
-        if(battle.playerTimer >= playerInterval){ attack(battle.player, battle.best, battle); battle.playerTimer -= playerInterval; }
-        if(battle.bestTimer >= bestInterval){ attack(battle.best, battle.player, battle); battle.bestTimer -= bestInterval; }
+		if(battle.playerTimer >= playerInterval){ 
+			attack(battle.player, battle.best, battle); 
+			battle.playerTimer -= playerInterval; 
+		}
+		if(battle.bestTimer >= bestInterval){ 
+			attack(battle.best, battle.player, battle); 
+			battle.bestTimer -= bestInterval; 
+		}
     }
 
     if(battle.lastRegen>=1000){
@@ -396,6 +757,32 @@ function loop(timestamp, ctx, battle) {
         requestAnimationFrame(ts => loop(ts, ctx, battle));
     }
 }
+
+battles.forEach((battle) => {
+    // calcul de la distance initiale entre les deux
+    let dx = battle.best.x - battle.player.x;
+    let dy = battle.best.y - battle.player.y;
+    let initialDistance = Math.sqrt(dx*dx + dy*dy) - MELEE_MIN_DISTANCE;
+
+    let bothMelee = (battle.player.weaponType === "Melee" && battle.best.weaponType === "Melee");
+
+    // Vitesse du joueur
+    if(battle.player.weaponType === "Melee") {
+        let distanceToCover = bothMelee ? initialDistance / 2 : initialDistance;
+        battle.player.meleeSpeed = distanceToCover / (MELEE_APPROACH_TIME * 1000); // pixels/ms
+    } else {
+        battle.player.meleeSpeed = 0;
+    }
+
+    // Vitesse du best build
+    if(battle.best.weaponType === "Melee") {
+        let distanceToCover = bothMelee ? initialDistance / 2 : initialDistance;
+        battle.best.meleeSpeed = distanceToCover / (MELEE_APPROACH_TIME * 1000); // pixels/ms
+    } else {
+        battle.best.meleeSpeed = 0;
+    }
+});
+
 
 battles.forEach((battle, i) => {
     requestAnimationFrame(ts => loop(ts, contexts[i], battle));
