@@ -41,10 +41,18 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <label>Base HP: <input type="number" id="hp" value="200000"></label>
 
 <label>PvP HP multiplier: <input type="number" id="hpMultiplier" value="5"></label>
+<label>Number of simulations:
+    <input type="number" id="numSimulations" value="50" min="1" max="200">
+</label>
+
+<label>Visible simulations:
+    <input type="number" id="visibleSimulations" value="4" min="0" max="10">
+</label>
+
 
 
 </br>
-<h3>Best Build Settings</h3>
+<h3>Best Build Settings:</h3>
 
 <label>Type of weapon:
     <select id="bestBuildWeaponType">
@@ -86,17 +94,25 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <div class="best-build" id="bestBuild"></div>
 </div>
 
-<div class="canvas-container">
-	<canvas id="battleCanvas1" width="600" height="300"></canvas>
-	<canvas id="battleCanvas2" width="600" height="300"></canvas>
-	<canvas id="battleCanvas3" width="600" height="300"></canvas>
-	<canvas id="battleCanvas4" width="600" height="300"></canvas>
-	<canvas id="battleCanvas5" width="600" height="300"></canvas>
-	<canvas id="battleCanvas6" width="600" height="300"></canvas>
-	<canvas id="battleCanvas7" width="600" height="300"></canvas>
-	<canvas id="battleCanvas8" width="600" height="300"></canvas>
-	<canvas id="battleCanvas9" width="600" height="300"></canvas>
+
+<div id="battleScores" style="
+    margin: 20px auto;
+    padding: 12px;
+    max-width: 600px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    background: #fff3cd;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.15);
+">
+    Player Wins: 0 | Best Build Wins: 0 | Player Winrate: 0%
 </div>
+
+
+
+<div class="canvas-container" id="canvasContainer"></div>
+
 
 <script>
 
@@ -107,7 +123,7 @@ const fields = [
     'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
     'bonusMeleeDamage', 'bonusBlock',
     'weaponType',
-    'bestBuildWeaponType'  // <-- ajouté pour l'URL
+    'bestBuildWeaponType','numSimulations','visibleSimulations',
 ];
 
 
@@ -130,13 +146,31 @@ const fields = [
     'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
     'bonusMeleeDamage', 'bonusBlock',
     'weaponType',
-    'bestBuildWeaponType'  // <-- ajouté pour l'URL
+    'bestBuildWeaponType','numSimulations','visibleSimulations',
 ];
 
 
     fields.forEach(id => {
         if(params.has(id)) {
-            document.getElementById(id).value = params.get(id);
+			let value = params.get(id);
+
+			if (id === 'numSimulations') {
+				value = Math.min(parseInt(value) || 1, MAX_SIMULATIONS);
+			}
+
+			if (id === 'bonusPoints') {
+				value = Math.min(parseInt(value) || 0, MAX_TOTAL_SUBSTATS);
+			}
+			if (id === 'visibleSimulations') {
+				value = Math.min(Math.max(parseInt(value) || 0, 0), MAX_VISIBLE_SIMULATIONS);
+			}
+
+
+
+
+
+			document.getElementById(id).value = value;
+
         }
     });
 }
@@ -145,17 +179,64 @@ const MELEE_SPEED = 2; // pixels par frame
 const MELEE_MIN_DISTANCE = 50; // distance minimale entre les personnages Melee
 const MELEE_APPROACH_TIME = 3.5; // secondes pour atteindre un adversaire à distance
 
+const MAX_SIMULATIONS = 200;
+const MAX_TOTAL_SUBSTATS = 25;
+const MAX_VISIBLE_SIMULATIONS = 10;
+let simulationId = 0;
 
 
 
 function calculate() {
+	simulationId++;
+	
+	
+	// --- GARDE-FOUS GLOBAUX ---
+
+	// Limite simulations
+	let numSimulationsInput = document.getElementById('numSimulations');
+	let numSimulations = parseInt(numSimulationsInput.value) || 1;
+
+	// Limite simulations visibles
+	let visibleSimulationsInput = document.getElementById('visibleSimulations');
+	let visibleSimulations = parseInt(visibleSimulationsInput.value) || 0;
+
+	if (visibleSimulations > MAX_VISIBLE_SIMULATIONS) {
+		visibleSimulations = MAX_VISIBLE_SIMULATIONS;
+		visibleSimulationsInput.value = MAX_VISIBLE_SIMULATIONS;
+	}
+
+	if (visibleSimulations < 0) {
+		visibleSimulations = 0;
+		visibleSimulationsInput.value = 0;
+	}
+
+
+
+	if (numSimulations > MAX_SIMULATIONS) {
+		numSimulations = MAX_SIMULATIONS;
+		numSimulationsInput.value = MAX_SIMULATIONS;
+	}
+
+	// Limite sub-stats best build
+	let bonusPointsInput = document.getElementById('bonusPoints');
+	let totalBonusPoints = parseInt(bonusPointsInput.value) || 0;
+
+	if (totalBonusPoints > MAX_TOTAL_SUBSTATS) {
+		totalBonusPoints = MAX_TOTAL_SUBSTATS;
+		bonusPointsInput.value = MAX_TOTAL_SUBSTATS;
+	}
+
+	
+	
+	document.getElementById('battleScores').innerText =
+    'Player Wins: 0 | Best Build Wins: 0 | Player Winrate: 0%';
+	const currentSimulationId = simulationId;
     const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
 
     let damage = parseFloat(document.getElementById('damage').value);
     let hp = parseFloat(document.getElementById('hp').value);
 	let weaponType = document.getElementById('weaponType').value; // "Ranged" ou "Melee"
     let hpMultiplier = parseFloat(document.getElementById('hpMultiplier').value) || 1;
-    let totalBonusPoints = parseInt(document.getElementById('bonusPoints').value);
 	let bestBuildWeaponType = document.getElementById('bestBuildWeaponType').value; // Auto / Ranged / Melee
 
 	
@@ -366,6 +447,7 @@ let bHP = 1 + 0.15 * bestConfig[9];
 let bestMaxHP = hp * bHP * hpMultiplier;
 
 // ⚡️ Assignation finale
+let battleBestWeaponType;
 battleBestWeaponType = bestWeaponTypeChosen;
 
 let bestStats = computeScore(damage, bAtkSpeed, bDouble, bCritChance, bCritDamage, bLifeSteal, bRegen, bestMaxHP, bDamageBonus, bMelee, bBlock);
@@ -392,8 +474,9 @@ document.getElementById('result').innerHTML = `
     Damage: ${(bonusDamage > 0 ? (bonusDamage*15).toFixed(2) : 0)}% (${bonusDamage} pts)<br>
 	Melee Damage: ${(weaponType === "Melee" && bonusMeleeDamage > 0 ? (bonusMeleeDamage*50).toFixed(2) : 0)}% (${bonusMeleeDamage} pts)<br>
 	Block Chance: ${(blockChance*100).toFixed(2)}% (${bonusBlock} pts)<br>
-    HP: ${(bonusHP > 0 ? (bonusHP*15).toFixed(2) : 0)}% (${bonusHP} pts)<br><br>
-    <strong>Overall Score:</strong> ${playerScoreNote}/100
+    HP: ${(bonusHP > 0 ? (bonusHP*15).toFixed(2) : 0)}% (${bonusHP} pts)<br>
+	
+    <!--<strong>Overall Score:</strong> ${playerScoreNote}/100-->
 `;
 
 
@@ -411,19 +494,46 @@ document.getElementById('bestBuild').innerHTML = `
     Damage: ${(bestConfig[6] > 0 ? (bestConfig[6]*15).toFixed(2) : 0)}% (${bestConfig[6]} pts)<br>
 	Melee Damage: ${((bMelee - 1) * 100).toFixed(2)}% (${bestConfig[7]} pts)<br>
 	Block Chance: ${(bBlock * 100).toFixed(2)}% (${bestConfig[8]} pts)<br>
-	HP: ${(bestConfig[9] > 0 ? (bestConfig[9]*15).toFixed(2) : 0)}% (${bestConfig[9]} pts)<br><br>
-
-    <strong>Overall Score:</strong> ${bestScoreNote}/100
+	HP: ${(bestConfig[9] > 0 ? (bestConfig[9]*15).toFixed(2) : 0)}% (${bestConfig[9]} pts)<br>
+    <!--<strong>Overall Score:</strong> ${playerScoreNote}/100-->
 `;
 
 
+const canvasContainer = document.getElementById('canvasContainer');
+canvasContainer.innerHTML = ''; // reset anciens combats
+
 const canvases = [];
-for(let i = 1; i <= 9; i++){
-    canvases.push(document.getElementById(`battleCanvas${i}`));
+
+for(let i = 0; i < numSimulations; i++){
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 300;
+    canvasContainer.appendChild(canvas);
+    canvases.push(canvas);
 }
+
+canvases.forEach((canvas, index) => {
+    canvas.style.display = index < visibleSimulations ? 'block' : 'none';
+});
+
+
+
+
 
 
 const contexts = canvases.map(c => c.getContext('2d'));
+let playerWins = 0;
+let bestWins = 0;
+
+
+function updateBattleScores() {
+    let totalBattles = playerWins + bestWins;
+    let winrate = totalBattles > 0 ? ((playerWins / totalBattles) * 100).toFixed(2) : 0;
+    document.getElementById('battleScores').innerText = 
+        `Player Wins: ${playerWins} | Best Build Wins: ${bestWins} | Player Winrate: ${winrate}%`;
+}
+
+
 
 let battles = contexts.map(() => ({
 	player: {
@@ -433,7 +543,7 @@ let battles = contexts.map(() => ({
 		meleeDamageBonus: meleeDamageBonus,
 		blockChance: blockChance,
 		weaponType: weaponType,
-		speed: MELEE_SPEED
+		meleeSpeed: 0
 	},
 
 	best: {
@@ -675,7 +785,8 @@ let playerTimer = 0;
 let bestTimer = 0;
 let firstAttackDone = false;
 
-function loop(timestamp, ctx, battle) {
+function loop(timestamp, ctx, battle, simId) {
+	if(simId !== simulationId) return;
     if(!battle.lastTime) battle.lastTime = timestamp;
     let dt = timestamp - battle.lastTime;
     battle.lastTime = timestamp;
@@ -749,13 +860,23 @@ function loop(timestamp, ctx, battle) {
     hitProjectiles(battle);
     draw(ctx, battle);
 
-    if(battle.player.hp<=0 || battle.best.hp<=0){
-        ctx.font='bold 24px Arial';
-        ctx.fillStyle='yellow';
-        ctx.fillText(battle.player.hp<=0?'Best build wins!':'Player wins!',200,150);
-    } else {
-        requestAnimationFrame(ts => loop(ts, ctx, battle));
-    }
+	if(battle.player.hp <= 0 || battle.best.hp <= 0){
+		ctx.font='bold 24px Arial';
+		ctx.fillStyle='yellow';
+		
+		let winner = battle.player.hp <= 0 ? 'Best build' : 'Player';
+		ctx.fillText(winner + ' wins!', 200, 150);
+
+		// ✅ Mettre à jour les scores
+		if(battle.player.hp <= 0) bestWins++;
+		else playerWins++;
+
+		updateBattleScores();
+
+	} else {
+		requestAnimationFrame(ts => loop(ts, ctx, battle, simId));
+	}
+
 }
 
 battles.forEach((battle) => {
@@ -785,10 +906,12 @@ battles.forEach((battle) => {
 
 
 battles.forEach((battle, i) => {
-    requestAnimationFrame(ts => loop(ts, contexts[i], battle));
+    requestAnimationFrame(ts => loop(ts, contexts[i], battle, currentSimulationId));
 });
 
 
+
+updateBattleScores();
 
 updateURL();
 }
