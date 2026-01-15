@@ -64,16 +64,16 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <label>Base HP: <input type="number" id="hpA" value="200000"></label>
 
 <h4>Distribute your sub-stats:</h4>
-<label>Attack Speed (+40% per sub-stat): <input type="number" id="bonusAttackSpeed" value="2"></label>
-<label>Double Chance (+40% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
-<label>Lifesteal (+20% per sub-stat): <input type="number" id="bonusLifeSteal" value="2"></label>
-<label>Critical Chance (+12% per sub-stat): <input type="number" id="bonusCritChance" value="2"></label>
-<label>Critical Damage (+100% per sub-stat): <input type="number" id="bonusCritDamage" value="2"></label>
-<label>Health Regen (+6% per sub-stat): <input type="number" id="bonusRegen" value="1"></label>
-<label>Damage (+15% per sub-stat): <input type="number" id="bonusDamage" value="1"></label>
-<label>Melee Damage (+50% per sub-stat): <input type="number" id="bonusMeleeDamage" value="0"></label>
-<label>Block Chance (+5% per sub-stat): <input type="number" id="bonusBlock" value="0"></label>
-<label>HP (+15% per sub-stat): <input type="number" id="bonusHP" value="0"></label>
+<label>Attack Speed: <input type="number" id="bonusAttackSpeed" value="0"></label>
+<label>Double Chance: <input type="number" id="bonusDoubleHit" value="0"></label>
+<label>Lifesteal: <input type="number" id="bonusLifeSteal" value="0"></label>
+<label>Critical Chance: <input type="number" id="bonusCritChance" value="0"></label>
+<label>Critical Damage: <input type="number" id="bonusCritDamage" value="0"></label>
+<label>Health Regen: <input type="number" id="bonusRegen" value="0"></label>
+<label>Damage + Ranged Damage: <input type="number" id="bonusDamage" value="0"></label>
+<label>Melee Damage: <input type="number" id="bonusMeleeDamage" value="0"></label>
+<label>Block Chance: <input type="number" id="bonusBlock" value="0"></label>
+<label>HP: <input type="number" id="bonusHP" value="0"></label>
 
 
 
@@ -89,16 +89,16 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 <label>Base HP: <input type="number" id="hpB" value="200000"></label>
 
 <h4>Distribute your sub-stats:</h4>
-<label>Attack Speed (+1% per sub-stat): <input type="number" id="bonusAttackSpeedB" value="2"></label>
-<label>Double Chance (+1% per sub-stat): <input type="number" id="bonusDoubleHitB" value="2"></label>
-<label>Lifesteal (+1% per sub-stat): <input type="number" id="bonusLifeStealB" value="2"></label>
-<label>Critical Chance (+1% per sub-stat): <input type="number" id="bonusCritChanceB" value="2"></label>
-<label>Critical Damage (+1% per sub-stat): <input type="number" id="bonusCritDamageB" value="2"></label>
-<label>Health Regen (+1% per sub-stat): <input type="number" id="bonusRegenB" value="1"></label>
-<label>Damage (+1% per sub-stat): <input type="number" id="bonusDamageB" value="1"></label>
-<label>Melee Damage (+1% per sub-stat): <input type="number" id="bonusMeleeDamageB" value="0"></label>
-<label>Block Chance (+1% per sub-stat): <input type="number" id="bonusBlockB" value="0"></label>
-<label>HP (+1% per sub-stat): <input type="number" id="bonusHPB" value="0"></label>
+<label>Attack Speed: <input type="number" id="bonusAttackSpeedB" value="0"></label>
+<label>Double Chance: <input type="number" id="bonusDoubleHitB" value="0"></label>
+<label>Lifesteal: <input type="number" id="bonusLifeStealB" value="0"></label>
+<label>Critical Chance: <input type="number" id="bonusCritChanceB" value="0"></label>
+<label>Critical Damage: <input type="number" id="bonusCritDamageB" value="0"></label>
+<label>Health Regen: <input type="number" id="bonusRegenB" value="0"></label>
+<label>Damage + Ranged Damage: <input type="number" id="bonusDamageB" value="0"></label>
+<label>Melee Damage: <input type="number" id="bonusMeleeDamageB" value="0"></label>
+<label>Block Chance: <input type="number" id="bonusBlockB" value="0"></label>
+<label>HP: <input type="number" id="bonusHPB" value="0"></label>
 
 
 
@@ -283,7 +283,7 @@ let attackSpeed = bonusAttackSpeed; // 1 point = 1%
 let doubleHitChance = bonusDoubleHit / 100;
 let lifeSteal = bonusLifeSteal / 100;
 let critChance = bonusCritChance / 100;
-let critDamageBonus = 1 + (bonusCritDamage / 100);
+let critDamageBonus = 1.2 + (bonusCritDamage / 100);
 let regen = bonusRegen / 100;
 let damageBonus = 1 + (bonusDamage / 100);
 let meleeDamageBonus = 1;
@@ -339,7 +339,7 @@ let attackSpeedB = bonusAttackSpeedB;
 let doubleHitChanceB = bonusDoubleHitB / 100;
 let lifeStealB = bonusLifeStealB / 100;
 let critChanceB = bonusCritChanceB / 100;
-let critDamageBonusB = 1 + (bonusCritDamageB / 100);
+let critDamageBonusB = 1.2 + (bonusCritDamageB / 100);
 let regenB = bonusRegenB / 100;
 let damageBonusB = 1 + (bonusDamageB / 100);
 let meleeDamageBonusB = 1;
