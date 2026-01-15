@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Battle Simulator Forge Master</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f0f0; }
+.container { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+label { display: block; margin-top: 10px; }
+input[type=number] { width: 60px; }
+button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
+.result { margin-top: 20px; background: #e0ffe0; padding: 10px; border-radius: 5px; }
+.best-build { margin-top: 20px; background: #c0dfff; padding: 10px; border-radius: 5px; }
+.canvas-container {
+    display: flex;
+    flex-wrap: wrap;          /* permet de passer à la ligne suivante */
+    gap: 20px;                /* espace entre canvas */
+    justify-content: center;  /* centre horizontalement */
+    padding: 20px;
+    background-color: #f8f8f8; /* léger fond pour différencier */
+    width: 100%;              /* prend toute la largeur */
+    box-sizing: border-box;
+}
+
+.canvas-container canvas {
+    border-radius: 10px;
+    background-color: #222;
+}
+
+
+
+
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Battle Simulator Forge Master</h2>
+</br>
+<h3>General Settings</h3>
+<label>PvP HP multiplier: <input type="number" id="hpMultiplier" value="5"></label>
+<label>Number of simulations:
+    <input type="number" id="numSimulations" value="50" min="1" max="1000">
+</label>
+<label>Visible simulations:
+    <input type="number" id="visibleSimulations" value="4" min="0" max="10">
+</label>
+
+
+
+
+
+
+
+
+</br>
+<h3>Player A Settings:</h3>
+<label>Type of weapon: 
+    <select id="weaponType">
+        <option value="Ranged" selected>Ranged</option>
+        <option value="Melee">Melee</option>
+    </select>
+</label>
+<label>Base Damage: <input type="number" id="damageA" value="30000"></label>
+<label>Base HP: <input type="number" id="hpA" value="200000"></label>
+
+<h4>Distribute your sub-stats:</h4>
+<label>Attack Speed (+40% per sub-stat): <input type="number" id="bonusAttackSpeed" value="2"></label>
+<label>Double Chance (+40% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
+<label>Lifesteal (+20% per sub-stat): <input type="number" id="bonusLifeSteal" value="2"></label>
+<label>Critical Chance (+12% per sub-stat): <input type="number" id="bonusCritChance" value="2"></label>
+<label>Critical Damage (+100% per sub-stat): <input type="number" id="bonusCritDamage" value="2"></label>
+<label>Health Regen (+6% per sub-stat): <input type="number" id="bonusRegen" value="1"></label>
+<label>Damage (+15% per sub-stat): <input type="number" id="bonusDamage" value="1"></label>
+<label>Melee Damage (+50% per sub-stat): <input type="number" id="bonusMeleeDamage" value="0"></label>
+<label>Block Chance (+5% per sub-stat): <input type="number" id="bonusBlock" value="0"></label>
+<label>HP (+15% per sub-stat): <input type="number" id="bonusHP" value="0"></label>
+
+
+
+</br>
+<h3>Player B Settings:</h3>
+<label>Type of weapon: 
+    <select id="weaponTypeB">
+        <option value="Ranged" selected>Ranged</option>
+        <option value="Melee">Melee</option>
+    </select>
+</label>
+<label>Base Damage: <input type="number" id="damageB" value="30000"></label>
+<label>Base HP: <input type="number" id="hpB" value="200000"></label>
+
+<h4>Distribute your sub-stats:</h4>
+<label>Attack Speed (+1% per sub-stat): <input type="number" id="bonusAttackSpeedB" value="2"></label>
+<label>Double Chance (+1% per sub-stat): <input type="number" id="bonusDoubleHitB" value="2"></label>
+<label>Lifesteal (+1% per sub-stat): <input type="number" id="bonusLifeStealB" value="2"></label>
+<label>Critical Chance (+1% per sub-stat): <input type="number" id="bonusCritChanceB" value="2"></label>
+<label>Critical Damage (+1% per sub-stat): <input type="number" id="bonusCritDamageB" value="2"></label>
+<label>Health Regen (+1% per sub-stat): <input type="number" id="bonusRegenB" value="1"></label>
+<label>Damage (+1% per sub-stat): <input type="number" id="bonusDamageB" value="1"></label>
+<label>Melee Damage (+1% per sub-stat): <input type="number" id="bonusMeleeDamageB" value="0"></label>
+<label>Block Chance (+1% per sub-stat): <input type="number" id="bonusBlockB" value="0"></label>
+<label>HP (+1% per sub-stat): <input type="number" id="bonusHPB" value="0"></label>
+
+
+
+
+
+<button onclick="calculate()">Calculate and Start Battle</button>
+<div class="result" id="result"></div>
+<div class="best-build" id="bestBuild"></div>
+</div>
+
+
+<div id="battleScores" style="
+    margin: 20px auto;
+    padding: 12px;
+    max-width: 600px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    background: #fff3cd;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.15);
+">
+    Player Wins: 0 | Best Build Wins: 0 | Player Winrate: 0%
+</div>
+
+
+
+<div class="canvas-container" id="canvasContainer"></div>
+
+
+<script>
+
+function updateURL() {
+const fields = [
+    'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+    'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+    'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
+    'bonusMeleeDamage', 'bonusBlock',
+    'weaponType',
+    'bestBuildWeaponType','numSimulations','visibleSimulations',
+];
+
+
+
+    const params = new URLSearchParams();
+
+    fields.forEach(id => {
+        params.set(id, document.getElementById(id).value);
+    });
+
+    const newURL = window.location.origin + window.location.pathname + '?' + params.toString();
+    window.history.replaceState({}, '', newURL); // Met à jour l’URL sans recharger la page
+}
+
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+const fields = [
+    'damage', 'hp', 'hpMultiplier', 'bonusPoints',
+    'bonusAttackSpeed', 'bonusDoubleHit', 'bonusLifeSteal',
+    'bonusCritChance', 'bonusCritDamage', 'bonusRegen', 'bonusDamage',
+    'bonusMeleeDamage', 'bonusBlock',
+    'weaponType',
+    'bestBuildWeaponType','numSimulations','visibleSimulations',
+];
+
+
+    fields.forEach(id => {
+        if(params.has(id)) {
+			let value = params.get(id);
+
+			if (id === 'numSimulations') {
+				value = Math.min(parseInt(value) || 1, MAX_SIMULATIONS);
+			}
+
+			if (id === 'bonusPoints') {
+				value = Math.min(parseInt(value) || 0, MAX_TOTAL_SUBSTATS);
+			}
+			if (id === 'visibleSimulations') {
+				value = Math.min(Math.max(parseInt(value) || 0, 0), MAX_VISIBLE_SIMULATIONS);
+			}
+
+
+
+
+
+			document.getElementById(id).value = value;
+
+        }
+    });
+}
+
+const MELEE_SPEED = 2; // pixels par frame
+const MELEE_MIN_DISTANCE = 50; // distance minimale entre les personnages Melee
+const MELEE_APPROACH_TIME = 3.5; // secondes pour atteindre un adversaire à distance
+
+const MAX_SIMULATIONS = 1000;
+const MAX_VISIBLE_SIMULATIONS = 10;
+let simulationId = 0;
+
+
+
+function calculate() {
+	simulationId++;
+	
+	
+	// --- GARDE-FOUS GLOBAUX ---
+
+	// Limite simulations
+	let numSimulationsInput = document.getElementById('numSimulations');
+	let numSimulations = parseInt(numSimulationsInput.value) || 1;
+
+	// Limite simulations visibles
+	let visibleSimulationsInput = document.getElementById('visibleSimulations');
+	let visibleSimulations = parseInt(visibleSimulationsInput.value) || 0;
+
+	if (visibleSimulations > MAX_VISIBLE_SIMULATIONS) {
+		visibleSimulations = MAX_VISIBLE_SIMULATIONS;
+		visibleSimulationsInput.value = MAX_VISIBLE_SIMULATIONS;
+	}
+
+	if (visibleSimulations < 0) {
+		visibleSimulations = 0;
+		visibleSimulationsInput.value = 0;
+	}
+
+
+
+	if (numSimulations > MAX_SIMULATIONS) {
+		numSimulations = MAX_SIMULATIONS;
+		numSimulationsInput.value = MAX_SIMULATIONS;
+	}
+
+
+
+	
+	
+	document.getElementById('battleScores').innerText =
+    'Player Wins: 0 | Best Build Wins: 0 | Player Winrate: 0%';
+	const currentSimulationId = simulationId;
+    const BASE_ATTACKS_PER_SECOND = 1 / 1.7;
+
+	let damageA = parseFloat(document.getElementById('damageA').value);
+	let hpA = parseFloat(document.getElementById('hpA').value);
+
+	let damageB = parseFloat(document.getElementById('damageB').value);
+	let hpB = parseFloat(document.getElementById('hpB').value);
+
+	let weaponType = document.getElementById('weaponType').value; // "Ranged" ou "Melee"
+    let hpMultiplier = parseFloat(document.getElementById('hpMultiplier').value) || 1;
+
+
+	
+	
+    let bonusAttackSpeed = parseInt(document.getElementById('bonusAttackSpeed').value) || 0;
+    let bonusDoubleHit = parseInt(document.getElementById('bonusDoubleHit').value) || 0;
+    let bonusLifeSteal = parseInt(document.getElementById('bonusLifeSteal').value) || 0;
+    let bonusCritChance = parseInt(document.getElementById('bonusCritChance').value) || 0;
+    let bonusCritDamage = parseInt(document.getElementById('bonusCritDamage').value) || 0;
+    let bonusRegen = parseInt(document.getElementById('bonusRegen').value) || 0;
+    let bonusDamage = parseInt(document.getElementById('bonusDamage').value) || 0;
+	let bonusMeleeDamage = parseInt(document.getElementById('bonusMeleeDamage').value) || 0;
+	let bonusBlock = parseInt(document.getElementById('bonusBlock').value) || 0;
+	let bonusHP = parseInt(document.getElementById('bonusHP').value) || 0;
+
+
+// --- Caps maximum par sous-stat ---
+const CAPS = {
+    attackSpeed: 480,
+    doubleHit: 1,        // 100%
+    lifeSteal: 2.4,      // 240%
+    critChance: 1,       // 100%
+    critDamage: 12,      // 1200%
+    regen: 0.72,         // 72%
+    damage: 3.6,         // 360%
+    meleeDamage: 6,      // 600%
+    block: 0.6           // 60%
+};
+
+
+// Nouveau calcul pour Player A
+let attackSpeed = bonusAttackSpeed; // 1 point = 1%
+let doubleHitChance = bonusDoubleHit / 100;
+let lifeSteal = bonusLifeSteal / 100;
+let critChance = bonusCritChance / 100;
+let critDamageBonus = 1 + (bonusCritDamage / 100);
+let regen = bonusRegen / 100;
+let damageBonus = 1 + (bonusDamage / 100);
+let meleeDamageBonus = 1;
+if(weaponType === "Melee" && bonusMeleeDamage > 0){
+    meleeDamageBonus = 1 + (bonusMeleeDamage / 100);
+}
+let blockChance = bonusBlock / 100;
+let hpBonusMultiplier = 1 + (bonusHP / 100);
+
+let maxHP = hpA * hpBonusMultiplier * hpMultiplier;
+
+
+function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, maxHp, dmgBonus, meleeBonus = 1, blockChance = 0) {
+    // DPS
+    let dpsSingle = damage * dmgBonus * meleeBonus * (1 + critChance * (critDamage - 1));
+    let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle + dpsSingle); // double hit
+    let dpsPerSecond = dpsAvg * (1 + atkSpeed / 100) * BASE_ATTACKS_PER_SECOND;
+
+    // Lifesteal
+    let lifeStealPerSecond = dpsPerSecond * lifeSteal;
+
+    // Regen prend en compte le HP total (bonus inclus)
+    let regenPerSecond = maxHp * regen;
+
+    // Score global pondéré
+    // ⚡ On ajoute contribution du block: chaque % de block vaut 50% du HP max
+    let score = dpsPerSecond + lifeStealPerSecond * 1.5 + regenPerSecond + blockChance * maxHp * 0.5;
+
+    return {score, dpsPerSecond, lifeStealPerSecond, regenPerSecond};
+}
+
+
+
+
+	let playerStats = computeScore(damageA, attackSpeed, doubleHitChance, critChance, critDamageBonus, lifeSteal, regen, maxHP, damageBonus, meleeDamageBonus, blockChance);
+
+
+// --- Récupération des stats de Player B ---
+let weaponTypeB = document.getElementById('weaponTypeB').value;
+let bonusAttackSpeedB = parseInt(document.getElementById('bonusAttackSpeedB').value) || 0;
+let bonusDoubleHitB = parseInt(document.getElementById('bonusDoubleHitB').value) || 0;
+let bonusLifeStealB = parseInt(document.getElementById('bonusLifeStealB').value) || 0;
+let bonusCritChanceB = parseInt(document.getElementById('bonusCritChanceB').value) || 0;
+let bonusCritDamageB = parseInt(document.getElementById('bonusCritDamageB').value) || 0;
+let bonusRegenB = parseInt(document.getElementById('bonusRegenB').value) || 0;
+let bonusDamageB = parseInt(document.getElementById('bonusDamageB').value) || 0;
+let bonusMeleeDamageB = parseInt(document.getElementById('bonusMeleeDamageB').value) || 0;
+let bonusBlockB = parseInt(document.getElementById('bonusBlockB').value) || 0;
+let bonusHPB = parseInt(document.getElementById('bonusHPB').value) || 0;
+
+// Calcul des stats Player B (1 point = 1%)
+let attackSpeedB = bonusAttackSpeedB;
+let doubleHitChanceB = bonusDoubleHitB / 100;
+let lifeStealB = bonusLifeStealB / 100;
+let critChanceB = bonusCritChanceB / 100;
+let critDamageBonusB = 1 + (bonusCritDamageB / 100);
+let regenB = bonusRegenB / 100;
+let damageBonusB = 1 + (bonusDamageB / 100);
+let meleeDamageBonusB = 1;
+if(weaponTypeB === "Melee" && bonusMeleeDamageB > 0){
+    meleeDamageBonusB = 1 + (bonusMeleeDamageB / 100);
+}
+let blockChanceB = bonusBlockB / 100;
+let hpBonusMultiplierB = 1 + (bonusHPB / 100);
+
+let maxHPB = hpB * hpBonusMultiplierB * hpMultiplier;
+
+// Score global Player B
+let playerBStats = computeScore(damageB, attackSpeedB, doubleHitChanceB, critChanceB, critDamageBonusB, lifeStealB, regenB, maxHPB, damageBonusB, meleeDamageBonusB, blockChanceB);
+
+// On remplace toutes les variables "best*" par Player B
+let battleBestWeaponType = weaponTypeB;
+let bestStats = playerBStats;
+let bAtkSpeed = attackSpeedB;
+let bDouble = doubleHitChanceB;
+let bLifeSteal = lifeStealB;
+let bCritChance = critChanceB;
+let bCritDamage = critDamageBonusB;
+let bRegen = regenB;
+let bDamageBonus = damageBonusB;
+let bMelee = meleeDamageBonusB;
+let bBlock = blockChanceB;
+let bestMaxHP = maxHPB;
+
+
+    let bestScoreNote = 100;
+    let playerScoreNote = Math.round((playerStats.score / bestStats.score) * 100);
+
+// Calculer le total réel des sub-stats du joueur
+let playerSubStatsTotal = bonusAttackSpeed + bonusDoubleHit + bonusLifeSteal + bonusCritChance + bonusCritDamage + bonusRegen + bonusDamage + bonusMeleeDamage + bonusBlock + bonusHP;
+
+document.getElementById('result').innerHTML = `
+    <strong>Player A Build:</strong><br>
+    Average DPS: ${playerStats.dpsPerSecond.toFixed(2)}<br>
+    Average Lifesteal per second: ${playerStats.lifeStealPerSecond.toFixed(2)}<br>
+    Average Health Regen: ${playerStats.regenPerSecond.toFixed(2)}<br><br>
+Attack Speed: ${bonusAttackSpeed}% (${bonusAttackSpeed} pts)<br>
+Double Chance: ${(doubleHitChance*100).toFixed(2)}% (${bonusDoubleHit} pts)<br>
+Lifesteal: ${(lifeSteal*100).toFixed(2)}% (${bonusLifeSteal} pts)<br>
+Critical Chance: ${(critChance*100).toFixed(2)}% (${bonusCritChance} pts)<br>
+Critical Damage: ${(critDamageBonus*100-100).toFixed(2)}% (${bonusCritDamage} pts)<br>
+Health Regen: ${(regen*100).toFixed(2)}% (${bonusRegen} pts)<br>
+Damage: ${(damageBonus*100-100).toFixed(2)}% (${bonusDamage} pts)<br>
+Melee Damage: ${((meleeDamageBonus-1)*100).toFixed(2)}% (${bonusMeleeDamage} pts)<br>
+Block Chance: ${(blockChance*100).toFixed(2)}% (${bonusBlock} pts)<br>
+HP: ${(hpBonusMultiplier*100-100).toFixed(2)}% (${bonusHP} pts)<br>
+	
+    <!--<strong>Overall Score:</strong> ${playerScoreNote}/100-->
+`;
+
+
+let playerBSubStatsTotal = bonusAttackSpeedB + bonusDoubleHitB + bonusLifeStealB + bonusCritChanceB + bonusCritDamageB + bonusRegenB + bonusDamageB + bonusMeleeDamageB + bonusBlockB + bonusHPB;
+
+document.getElementById('bestBuild').innerHTML = `
+    <strong>Player B Build:</strong><br>
+    Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
+    Average Lifesteal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
+    Average Health Regen: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
+    Attack Speed: ${attackSpeedB}% (${bonusAttackSpeedB} pts)<br>
+    Double Chance: ${(doubleHitChanceB*100).toFixed(2)}% (${bonusDoubleHitB} pts)<br>
+    Lifesteal: ${(lifeStealB*100).toFixed(2)}% (${bonusLifeStealB} pts)<br>
+    Critical Chance: ${(critChanceB*100).toFixed(2)}% (${bonusCritChanceB} pts)<br>
+    Critical Damage: ${(critDamageBonusB*100-100).toFixed(2)}% (${bonusCritDamageB} pts)<br>
+    Health Regen: ${(regenB*100).toFixed(2)}% (${bonusRegenB} pts)<br>
+    Damage: ${(damageBonusB*100-100).toFixed(2)}% (${bonusDamageB} pts)<br>
+    Melee Damage: ${((meleeDamageBonusB-1)*100).toFixed(2)}% (${bonusMeleeDamageB} pts)<br>
+    Block Chance: ${(blockChanceB*100).toFixed(2)}% (${bonusBlockB} pts)<br>
+    HP: ${(hpBonusMultiplierB*100-100).toFixed(2)}% (${bonusHPB} pts)<br>
+`;
+
+
+const canvasContainer = document.getElementById('canvasContainer');
+canvasContainer.innerHTML = ''; // reset anciens combats
+
+const canvases = [];
+
+for(let i = 0; i < numSimulations; i++){
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 300;
+    canvasContainer.appendChild(canvas);
+    canvases.push(canvas);
+}
+
+canvases.forEach((canvas, index) => {
+    canvas.style.display = index < visibleSimulations ? 'block' : 'none';
+});
+
+
+
+
+
+
+const contexts = canvases.map(c => c.getContext('2d'));
+let playerWins = 0;
+let bestWins = 0;
+
+
+function updateBattleScores() {
+    let totalBattles = playerWins + bestWins;
+    let winrate = totalBattles > 0 ? ((playerWins / totalBattles) * 100).toFixed(2) : 0;
+    document.getElementById('battleScores').innerText = 
+        `Player A Wins: ${playerWins} | Player B Wins: ${bestWins} | Player A Winrate: ${winrate}%`;
+}
+
+
+
+let battles = contexts.map(() => ({
+    player: {
+        x: 100,
+        y: 200,
+        hp: hpA * hpMultiplier,
+        maxHp: hpA * hpMultiplier,
+        baseHp: hpA,
+        atkSpeed: attackSpeed,
+        dbl: doubleHitChance,
+        crit: critChance,
+        critD: critDamageBonus,
+        ls: lifeSteal,
+        regen: regen,
+        dmg: damageA,
+        dmgBonus: damageBonus,
+        meleeDamageBonus: meleeDamageBonus,
+        blockChance: blockChance,
+        weaponType: weaponType,
+        meleeSpeed: 0
+    },
+    best: {
+        x: 500,
+        y: 200,
+        hp: bestMaxHP,
+        maxHp: bestMaxHP,
+        baseHp: hpB,
+        atkSpeed: bAtkSpeed,
+        dbl: bDouble,
+        crit: bCritChance,
+        critD: bCritDamage,
+        ls: bLifeSteal,
+        regen: bRegen,
+        dmg: damageB,
+        dmgBonus: bDamageBonus,
+        meleeDamageBonus: bMelee,
+        blockChance: bBlock,
+        weaponType: battleBestWeaponType,
+        speed: 0
+    },
+    messages: [],
+    projectiles: [],
+    lastRegen: 0,
+    lastTime: 0,
+    playerTimer: 0,
+    bestTimer: 0,
+    firstAttackDone: false
+}));
+
+
+
+
+
+
+function draw(ctx, battle) {
+    const { player, best, messages, projectiles } = battle;
+
+    // Fond noir
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, 600, 300);
+
+    // Joueur vert
+    ctx.fillStyle='green';
+    ctx.fillRect(player.x-20, player.y-20, 40, 40);
+    ctx.fillStyle='red';
+    ctx.fillRect(player.x-25, player.y-30, 50*(player.hp/player.maxHp), 5);
+
+    // Best bleu
+    ctx.fillStyle='blue';
+    ctx.fillRect(best.x-20, best.y-20, 40,40);
+    ctx.fillStyle='red';
+    ctx.fillRect(best.x-25, best.y-30, 50*(best.hp/best.maxHp),5);
+
+    // Messages
+    for(let i=0;i<messages.length;i++){
+        ctx.font='bold 16px Arial';
+        ctx.fillStyle=messages[i].color;
+        ctx.fillText(messages[i].text, messages[i].x, messages[i].y);
+        messages[i].y -= 0.5;
+        messages[i].alpha -= 0.003;
+    }
+    battle.messages = messages.filter(m=>m.alpha>0);
+
+    // Projectiles
+    for(let i=0;i<projectiles.length;i++){
+        ctx.fillStyle = projectiles[i].color;
+        ctx.beginPath();
+        ctx.arc(projectiles[i].x, projectiles[i].y, 5, 0, 2*Math.PI);
+        ctx.fill();
+        projectiles[i].x += projectiles[i].vx;
+        projectiles[i].y += projectiles[i].vy;
+    }
+    battle.projectiles = projectiles.filter(p => !p.hit && p.x>0 && p.x<600);
+}
+
+
+
+
+function attack(attacker, defender, battle){
+	// Si l'attaquant est Melee, attaque directe
+// Si l'attaquant est Melee, attaque directe
+if(attacker.weaponType === "Melee") {
+    // Vérifier la distance minimale pour attaquer
+    let dx = defender.x - attacker.x;
+    let dy = defender.y - attacker.y;
+    let distance = Math.sqrt(dx*dx + dy*dy);
+    if(distance > MELEE_MIN_DISTANCE) return;
+
+    // Nombre de hits selon doubleHitChance
+    let hits = 1;
+    if(Math.random() < attacker.dbl) hits = 2;
+
+    for(let i=0; i<hits; i++) {
+        let isCrit = Math.random() < attacker.crit;
+        let dmgBase = attacker.dmg * attacker.dmgBonus;
+        if(attacker.weaponType === "Melee" && attacker.meleeDamageBonus) dmgBase *= attacker.meleeDamageBonus;
+        let dmg = Math.floor(isCrit ? dmgBase * attacker.critD : dmgBase);
+
+        // Blocage
+        if(Math.random() < defender.blockChance) {
+            battle.messages.push({
+                x: defender.x - 10,
+                y: defender.y - 25 - i*15, // ← chaque hit a son propre décalage
+                text: 'BLOCK',
+                color: 'violet',
+                alpha: 1
+            });
+            continue; // attaqué mais bloqué
+        }
+
+        defender.hp -= dmg;
+
+        // Message dégâts séparé pour chaque hit
+        battle.messages.push({
+            x: defender.x - 10,
+            y: defender.y - 25 - i*15, // ← chaque hit a son propre décalage
+            text: '-' + dmg,
+            color: isCrit ? 'red' : 'orange',
+            alpha: 1
+        });
+
+        // Lifesteal séparé pour chaque hit
+        if(attacker.ls > 0) {
+            let heal = Math.floor(dmg * attacker.ls);
+            attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal);
+            battle.messages.push({
+                x: attacker.x - 10,
+                y: attacker.y - 45 - i*15, // ← décalage propre à chaque hit
+                text: '+ ' + heal,
+                color: 'green',
+                alpha: 1
+            });
+        }
+    }
+
+    return; // pas besoin de projectiles
+}
+
+    let hits = 1;
+    if(Math.random() < attacker.dbl) hits = 2;
+
+    let baseDx = defender.x - attacker.x;
+    let baseDy = defender.y - attacker.y;
+    let baseDist = Math.sqrt(baseDx*baseDx + baseDy*baseDy);
+    let dirX = baseDx / baseDist;
+    let dirY = baseDy / baseDist;
+
+    for(let i=0;i<hits;i++){
+        let offsetX = 0;
+        let offsetY = 0;
+        if(hits === 2){
+            let separation = (i === 0 ? -10 : 120);
+            offsetX = dirX * separation;
+            offsetY = dirY * separation;
+        }
+        let dx = defender.x - (attacker.x + offsetX);
+        let dy = defender.y - (attacker.y + offsetY);
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        let vx = dx / dist * 5;
+        let vy = dy / dist * 5;
+
+        battle.projectiles.push({
+            x: attacker.x + offsetX,
+            y: attacker.y + offsetY,
+            vx: vx,
+            vy: vy,
+            color: 'orange',
+            dmg: attacker.dmg * attacker.dmgBonus,
+            attacker: attacker,
+            target: defender,
+            hit: false
+        });
+    }
+}
+
+
+
+function hitProjectiles(battle){
+    battle.projectiles.forEach(p=>{
+        let dx = Math.abs(p.x - p.target.x);
+        let dy = Math.abs(p.y - p.target.y);
+        if(dx<5 && dy<5){
+            let isCrit = Math.random() < p.attacker.crit;
+            let dmgBase = p.dmg;
+            if(p.attacker.weaponType === "Melee" && p.attacker.meleeDamageBonus){
+                dmgBase *= p.attacker.meleeDamageBonus;
+            }
+            let dmg = Math.floor(isCrit ? dmgBase * p.attacker.critD : dmgBase);
+
+            // Générer un offset vertical pour ce hit, qu'il soit bloqué ou non
+            let offsetY = (p.attacker.dbl > 0) ? (-15 + Math.random() * 10) : 0;
+
+            if(Math.random() < p.target.blockChance){
+                battle.messages.push({
+                    x: p.target.x - 10,
+                    y: p.target.y - 25 + offsetY, // ← même décalage que pour le hit normal
+                    text: 'BLOCK',
+                    color: 'violet',
+                    alpha: 1
+                });
+            } else {
+                p.target.hp -= dmg;
+
+                battle.messages.push({
+                    x: p.target.x - 10,
+                    y: p.target.y - 25 + offsetY,
+                    text:'-'+dmg,
+                    color:isCrit?'red':'orange',
+                    alpha:1
+                });
+            }
+
+            if (p.attacker.ls > 0) {
+                let healPotential = Math.floor(dmg * p.attacker.ls);
+                let healReal = Math.max(0, Math.min(healPotential, p.attacker.maxHp - p.attacker.hp));
+                p.attacker.hp += healReal;
+
+                battle.messages.push({
+                    x: p.attacker.x - 10,
+                    y: p.attacker.y - 45 + offsetY,
+                    text: '+ ' + healReal,
+                    color: 'green',
+                    alpha: 1
+                });
+            }
+
+            p.hit=true;
+        }
+    });
+}
+
+
+let lastTime = 0;
+let playerTimer = 0;
+let bestTimer = 0;
+let firstAttackDone = false;
+
+function loop(timestamp, ctx, battle, simId) {
+	if(simId !== simulationId) return;
+    if(!battle.lastTime) battle.lastTime = timestamp;
+    let dt = timestamp - battle.lastTime;
+    battle.lastTime = timestamp;
+
+    battle.playerTimer += dt;
+    battle.bestTimer += dt;
+    battle.lastRegen += dt;
+
+    if(!battle.firstAttackDone) {
+		attack(battle.player, battle.best, battle);   // attaque du joueur
+		attack(battle.best, battle.player, battle);   // attaque du best build
+		attack(battle.player, battle.best, battle);   // attaque supplémentaire du joueur
+		attack(battle.best, battle.player, battle);   // attaque supplémentaire du best build
+		battle.playerTimer = 0;
+		battle.bestTimer = 0;
+		battle.firstAttackDone = true;
+    } else {
+			if(battle.player.weaponType === "Melee"){
+				let dx = battle.best.x - battle.player.x;
+				let dy = battle.best.y - battle.player.y;
+				let distance = Math.sqrt(dx*dx + dy*dy);
+
+				if(distance > MELEE_MIN_DISTANCE){
+					// déplacement fixe par frame
+					battle.player.x += (dx / distance) * battle.player.meleeSpeed * dt;
+					battle.player.y += (dy / distance) * battle.player.meleeSpeed * dt;
+				}
+				// Sinon on est à portée, on laisse playerTimer gérer les attaques
+			}
+
+
+			// ✅ Déplacement du best build si melee
+			if(battle.best.weaponType === "Melee"){
+				let dx = battle.player.x - battle.best.x;
+				let dy = battle.player.y - battle.best.y;
+				let distance = Math.sqrt(dx*dx + dy*dy);
+
+				if(distance > MELEE_MIN_DISTANCE){
+					battle.best.x += (dx / distance) * battle.best.meleeSpeed * dt;
+					battle.best.y += (dy / distance) * battle.best.meleeSpeed * dt;
+				}
+			}
+
+
+
+        let playerInterval = 1000 / (1/1.7*(1+battle.player.atkSpeed/100));
+        let bestInterval = 1000 / (1/1.7*(1+battle.best.atkSpeed/100));
+
+		if(battle.playerTimer >= playerInterval){ 
+			attack(battle.player, battle.best, battle); 
+			battle.playerTimer -= playerInterval; 
+		}
+		if(battle.bestTimer >= bestInterval){ 
+			attack(battle.best, battle.player, battle); 
+			battle.bestTimer -= bestInterval; 
+		}
+    }
+
+    if(battle.lastRegen>=1000){
+        [battle.player,battle.best].forEach(unit=>{
+            if(unit.regen>0){
+                let healPotential = Math.floor(unit.baseHp * unit.regen);
+                let healReal = Math.max(0, Math.min(healPotential, unit.maxHp - unit.hp));
+                unit.hp += healReal;
+                battle.messages.push({x: unit.x-10, y: unit.y-45, text:'+ '+healReal, color:'green', alpha:1});
+            }
+        });
+        battle.lastRegen=0;
+    }
+
+    hitProjectiles(battle);
+    draw(ctx, battle);
+
+	if(battle.player.hp <= 0 || battle.best.hp <= 0){
+		ctx.font='bold 24px Arial';
+		ctx.fillStyle='yellow';
+		
+		let winner = battle.player.hp <= 0 ? 'Player B' : 'Player';
+
+		ctx.fillText(winner + ' wins!', 200, 150);
+
+		// ✅ Mettre à jour les scores
+		if(battle.player.hp <= 0) bestWins++;
+		else playerWins++;
+
+		updateBattleScores();
+
+	} else {
+		requestAnimationFrame(ts => loop(ts, ctx, battle, simId));
+	}
+
+}
+
+battles.forEach((battle) => {
+    // calcul de la distance initiale entre les deux
+    let dx = battle.best.x - battle.player.x;
+    let dy = battle.best.y - battle.player.y;
+    let initialDistance = Math.sqrt(dx*dx + dy*dy) - MELEE_MIN_DISTANCE;
+
+    let bothMelee = (battle.player.weaponType === "Melee" && battle.best.weaponType === "Melee");
+
+    // Vitesse du joueur
+    if(battle.player.weaponType === "Melee") {
+        let distanceToCover = bothMelee ? initialDistance / 2 : initialDistance;
+        battle.player.meleeSpeed = distanceToCover / (MELEE_APPROACH_TIME * 1000); // pixels/ms
+    } else {
+        battle.player.meleeSpeed = 0;
+    }
+
+    // Vitesse du best build
+    if(battle.best.weaponType === "Melee") {
+        let distanceToCover = bothMelee ? initialDistance / 2 : initialDistance;
+        battle.best.meleeSpeed = distanceToCover / (MELEE_APPROACH_TIME * 1000); // pixels/ms
+    } else {
+        battle.best.meleeSpeed = 0;
+    }
+});
+
+
+battles.forEach((battle, i) => {
+    requestAnimationFrame(ts => loop(ts, contexts[i], battle, currentSimulationId));
+});
+
+
+
+updateBattleScores();
+
+updateURL();
+}
+
+
+window.onload = () => {
+    loadFromURL();
+    calculate();
+};
+
+</script>
+</body>
+</html>
