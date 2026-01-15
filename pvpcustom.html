@@ -121,7 +121,7 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
     border-radius: 8px;
     box-shadow: 0 0 6px rgba(0,0,0,0.15);
 ">
-    Player Wins: 0 | Best Build Wins: 0 | Player Winrate: 0%
+    Player A Wins: 0 | Player B Wins: 0 | Player A Winrate: 0%
 </div>
 
 
@@ -786,7 +786,7 @@ function loop(timestamp, ctx, battle, simId) {
 		ctx.font='bold 24px Arial';
 		ctx.fillStyle='yellow';
 		
-		let winner = battle.player.hp <= 0 ? 'Player B' : 'Player';
+		let winner = battle.player.hp <= 0 ? 'Player B' : 'Player A';
 
 		ctx.fillText(winner + ' wins!', 200, 150);
 
