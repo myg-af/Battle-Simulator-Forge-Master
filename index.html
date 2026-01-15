@@ -42,7 +42,7 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 
 <label>PvP HP multiplier: <input type="number" id="hpMultiplier" value="5"></label>
 <label>Number of simulations:
-    <input type="number" id="numSimulations" value="50" min="1" max="2000">
+    <input type="number" id="numSimulations" value="50" min="1" max="10000">
 </label>
 
 <label>Visible simulations:
@@ -179,7 +179,7 @@ const MELEE_SPEED = 2; // pixels par frame
 const MELEE_MIN_DISTANCE = 50; // distance minimale entre les personnages Melee
 const MELEE_APPROACH_TIME = 3.5; // secondes pour atteindre un adversaire à distance
 
-const MAX_SIMULATIONS = 2000;
+const MAX_SIMULATIONS = 10000;
 const MAX_TOTAL_SUBSTATS = 25;
 const MAX_VISIBLE_SIMULATIONS = 10;
 let simulationId = 0;
