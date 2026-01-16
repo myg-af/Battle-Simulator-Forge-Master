@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -301,29 +303,64 @@ let hpBonusMultiplier = 1 + (bonusHP / 100);
 let maxHP = hpA * hpBonusMultiplier * hpMultiplier;
 
 
-function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeSteal, regen, maxHp, dmgBonus, meleeBonus = 1, blockChance = 0) {
+function computeScore(
+    damage,
+    atkSpeed,
+    doubleHit,
+    critChance,
+    critDamage,
+    lifeSteal,
+    regen,
+    baseHp,
+    maxHp,
+    dmgBonus,
+    meleeBonus = 1,
+    blockChance = 0
+) {
     // DPS
     let dpsSingle = damage * dmgBonus * meleeBonus * (1 + critChance * (critDamage - 1));
-    let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle + dpsSingle); // double hit
+    let dpsAvg = (1 - doubleHit) * dpsSingle + doubleHit * (dpsSingle * 2);
     let dpsPerSecond = dpsAvg * (1 + atkSpeed / 100) * BASE_ATTACKS_PER_SECOND;
 
     // Lifesteal
     let lifeStealPerSecond = dpsPerSecond * lifeSteal;
 
-    // Regen prend en compte le HP total (bonus inclus)
-    let regenPerSecond = maxHp * regen;
+    // ✅ Regen par seconde basé UNIQUEMENT sur le Base HP
+    let regenPerSecond = baseHp * regen;
 
-    // Score global pondéré
-    // ⚡ On ajoute contribution du block: chaque % de block vaut 50% du HP max
-    let score = dpsPerSecond + lifeStealPerSecond * 1.5 + regenPerSecond + blockChance * maxHp * 0.5;
+    // Score global
+    let score =
+        dpsPerSecond +
+        lifeStealPerSecond * 1.5 +
+        regenPerSecond +
+        blockChance * maxHp * 0.5;
 
-    return {score, dpsPerSecond, lifeStealPerSecond, regenPerSecond};
+    return {
+        score,
+        dpsPerSecond,
+        lifeStealPerSecond,
+        regenPerSecond
+    };
 }
 
 
 
 
-	let playerStats = computeScore(damageA, attackSpeed, doubleHitChance, critChance, critDamageBonus, lifeSteal, regen, maxHP, damageBonus, meleeDamageBonus, blockChance);
+
+let playerStats = computeScore(
+    damageA,
+    attackSpeed,
+    doubleHitChance,
+    critChance,
+    critDamageBonus,
+    lifeSteal,
+    regen,
+    hpA,          // ✅ Base HP
+    maxHP,
+    damageBonus,
+    meleeDamageBonus,
+    blockChance
+);
 
 
 // --- Récupération des stats de Player B ---
@@ -358,7 +395,20 @@ let hpBonusMultiplierB = 1 + (bonusHPB / 100);
 let maxHPB = hpB * hpBonusMultiplierB * hpMultiplier;
 
 // Score global Player B
-let playerBStats = computeScore(damageB, attackSpeedB, doubleHitChanceB, critChanceB, critDamageBonusB, lifeStealB, regenB, maxHPB, damageBonusB, meleeDamageBonusB, blockChanceB);
+let playerBStats = computeScore(
+    damageB,
+    attackSpeedB,
+    doubleHitChanceB,
+    critChanceB,
+    critDamageBonusB,
+    lifeStealB,
+    regenB,
+    hpB,          // ✅ Base HP
+    maxHPB,
+    damageBonusB,
+    meleeDamageBonusB,
+    blockChanceB
+);
 
 // On remplace toutes les variables "best*" par Player B
 let battleBestWeaponType = weaponTypeB;
@@ -385,7 +435,7 @@ document.getElementById('result').innerHTML = `
     <strong>Player A Build:</strong><br>
     Average DPS: ${playerStats.dpsPerSecond.toFixed(2)}<br>
     Average Lifesteal per second: ${playerStats.lifeStealPerSecond.toFixed(2)}<br>
-    Average Health Regen: ${playerStats.regenPerSecond.toFixed(2)}<br><br>
+Average Health Regen per second: ${playerStats.regenPerSecond.toFixed(2)}<br><br>
 Attack Speed: ${bonusAttackSpeed}% (${bonusAttackSpeed} pts)<br>
 Double Chance: ${(doubleHitChance*100).toFixed(2)}% (${bonusDoubleHit} pts)<br>
 Lifesteal: ${(lifeSteal*100).toFixed(2)}% (${bonusLifeSteal} pts)<br>
@@ -407,7 +457,7 @@ document.getElementById('bestBuild').innerHTML = `
     <strong>Player B Build:</strong><br>
     Average DPS: ${bestStats.dpsPerSecond.toFixed(2)}<br>
     Average Lifesteal per second: ${bestStats.lifeStealPerSecond.toFixed(2)}<br>
-    Average Health Regen: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
+    Average Health Regen per second: ${bestStats.regenPerSecond.toFixed(2)}<br><br>
     Attack Speed: ${attackSpeedB}% (${bonusAttackSpeedB} pts)<br>
     Double Chance: ${(doubleHitChanceB*100).toFixed(2)}% (${bonusDoubleHitB} pts)<br>
     Lifesteal: ${(lifeStealB*100).toFixed(2)}% (${bonusLifeStealB} pts)<br>
@@ -868,3 +918,5 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
+
