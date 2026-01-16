@@ -543,7 +543,8 @@ let battles = contexts.map(() => ({
 		meleeDamageBonus: meleeDamageBonus,
 		blockChance: blockChance,
 		weaponType: weaponType,
-		meleeSpeed: 0
+		meleeSpeed: 0,
+		firstMeleeHitDone: false
 	},
 
 	best: {
@@ -565,7 +566,8 @@ let battles = contexts.map(() => ({
 		blockChance: bBlock,
 
 		weaponType: battleBestWeaponType, // maintenant le bot peut être Ranged ou Melee
-		speed: 0
+		speed: 0,
+		firstMeleeHitDone: false
 
 	},
 
@@ -575,7 +577,6 @@ let battles = contexts.map(() => ({
     lastTime: 0,
     playerTimer: 0,
     bestTimer: 0,
-    firstAttackDone: false
 }));
 
 
@@ -732,9 +733,6 @@ function hitProjectiles(battle){
         if(dx<5 && dy<5){
             let isCrit = Math.random() < p.attacker.crit;
             let dmgBase = p.dmg;
-            if(p.attacker.weaponType === "Melee" && p.attacker.meleeDamageBonus){
-                dmgBase *= p.attacker.meleeDamageBonus;
-            }
             let dmg = Math.floor(isCrit ? dmgBase * p.attacker.critD : dmgBase);
 
             // Générer un offset vertical pour ce hit, qu'il soit bloqué ou non
@@ -795,30 +793,25 @@ function loop(timestamp, ctx, battle, simId) {
     battle.bestTimer += dt;
     battle.lastRegen += dt;
 
-    if(!battle.firstAttackDone) {
-		attack(battle.player, battle.best, battle);   // attaque du joueur
-		attack(battle.best, battle.player, battle);   // attaque du best build
-		attack(battle.player, battle.best, battle);   // attaque supplémentaire du joueur
-		attack(battle.best, battle.player, battle);   // attaque supplémentaire du best build
-		battle.playerTimer = 0;
-		battle.bestTimer = 0;
-		battle.firstAttackDone = true;
-    } else {
+
 			if(battle.player.weaponType === "Melee"){
 				let dx = battle.best.x - battle.player.x;
 				let dy = battle.best.y - battle.player.y;
 				let distance = Math.sqrt(dx*dx + dy*dy);
 
 				if(distance > MELEE_MIN_DISTANCE){
-					// déplacement fixe par frame
 					battle.player.x += (dx / distance) * battle.player.meleeSpeed * dt;
 					battle.player.y += (dy / distance) * battle.player.meleeSpeed * dt;
+				} else if(!battle.player.firstMeleeHitDone){
+					// ⚡ attaque instantanée à l'arrivée
+					attack(battle.player, battle.best, battle);
+					battle.player.firstMeleeHitDone = true;
+					battle.playerTimer = 0;
 				}
-				// Sinon on est à portée, on laisse playerTimer gérer les attaques
 			}
 
 
-			// ✅ Déplacement du best build si melee
+
 			if(battle.best.weaponType === "Melee"){
 				let dx = battle.player.x - battle.best.x;
 				let dy = battle.player.y - battle.best.y;
@@ -827,23 +820,46 @@ function loop(timestamp, ctx, battle, simId) {
 				if(distance > MELEE_MIN_DISTANCE){
 					battle.best.x += (dx / distance) * battle.best.meleeSpeed * dt;
 					battle.best.y += (dy / distance) * battle.best.meleeSpeed * dt;
+				} else if(!battle.best.firstMeleeHitDone){
+					// ⚡ attaque instantanée à l'arrivée
+					attack(battle.best, battle.player, battle);
+					battle.best.firstMeleeHitDone = true;
+					battle.bestTimer = 0;
 				}
 			}
+
 
 
 
         let playerInterval = 1000 / (1/1.7*(1+battle.player.atkSpeed/100));
         let bestInterval = 1000 / (1/1.7*(1+battle.best.atkSpeed/100));
 
-		if(battle.playerTimer >= playerInterval){ 
-			attack(battle.player, battle.best, battle); 
-			battle.playerTimer -= playerInterval; 
+		if(battle.playerTimer >= playerInterval){
+			if(
+				battle.player.weaponType !== "Melee" ||
+				Math.hypot(
+					battle.best.x - battle.player.x,
+					battle.best.y - battle.player.y
+				) <= MELEE_MIN_DISTANCE
+			){
+				attack(battle.player, battle.best, battle);
+				battle.playerTimer -= playerInterval;
+			}
 		}
-		if(battle.bestTimer >= bestInterval){ 
-			attack(battle.best, battle.player, battle); 
-			battle.bestTimer -= bestInterval; 
+
+		if(battle.bestTimer >= bestInterval){
+			if(
+				battle.best.weaponType !== "Melee" ||
+				Math.hypot(
+					battle.player.x - battle.best.x,
+					battle.player.y - battle.best.y
+				) <= MELEE_MIN_DISTANCE
+			){
+				attack(battle.best, battle.player, battle);
+				battle.bestTimer -= bestInterval;
+			}
 		}
-    }
+
 
     if(battle.lastRegen>=1000){
         [battle.player,battle.best].forEach(unit=>{
