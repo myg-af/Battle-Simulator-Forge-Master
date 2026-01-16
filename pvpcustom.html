@@ -469,7 +469,8 @@ let battles = contexts.map(() => ({
         meleeDamageBonus: meleeDamageBonus,
         blockChance: blockChance,
         weaponType: weaponType,
-        meleeSpeed: 0
+        meleeSpeed: 0,
+        firstMeleeHitDone: false // ← nouveau flag
     },
     best: {
         x: 500,
@@ -488,7 +489,8 @@ let battles = contexts.map(() => ({
         meleeDamageBonus: bMelee,
         blockChance: bBlock,
         weaponType: battleBestWeaponType,
-        speed: 0
+        speed: 0,
+        firstMeleeHitDone: false // ← nouveau flag
     },
     messages: [],
     projectiles: [],
@@ -732,25 +734,37 @@ function loop(timestamp, ctx, battle, simId) {
 				let distance = Math.sqrt(dx*dx + dy*dy);
 
 				if(distance > MELEE_MIN_DISTANCE){
-					// déplacement fixe par frame
 					battle.player.x += (dx / distance) * battle.player.meleeSpeed * dt;
 					battle.player.y += (dy / distance) * battle.player.meleeSpeed * dt;
+				} else if(!battle.player.firstMeleeHitDone){ 
+					// ⚡ Attaque instantanée dès que le joueur melee est à portée
+					attack(battle.player, battle.best, battle);
+					battle.player.firstMeleeHitDone = true; // on ne répète pas cette première attaque
+					battle.playerTimer = 0; // reset timer pour le cooldown normal
 				}
-				// Sinon on est à portée, on laisse playerTimer gérer les attaques
 			}
 
 
+
 			// ✅ Déplacement du best build si melee
+			// ✅ Déplacement du best build si melee avec attaque instantanée
 			if(battle.best.weaponType === "Melee"){
 				let dx = battle.player.x - battle.best.x;
 				let dy = battle.player.y - battle.best.y;
 				let distance = Math.sqrt(dx*dx + dy*dy);
 
 				if(distance > MELEE_MIN_DISTANCE){
+					// déplacement
 					battle.best.x += (dx / distance) * battle.best.meleeSpeed * dt;
 					battle.best.y += (dy / distance) * battle.best.meleeSpeed * dt;
+				} else if(!battle.best.firstMeleeHitDone){
+					// ⚡ Attaque instantanée dès que le best build est à portée
+					attack(battle.best, battle.player, battle);
+					battle.best.firstMeleeHitDone = true; // on ne répète pas cette première attaque
+					battle.bestTimer = 0; // reset timer pour le cooldown normal
 				}
 			}
+
 
 
 
