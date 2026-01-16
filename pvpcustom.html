@@ -252,16 +252,21 @@ function calculate() {
 
 	
 	
-    let bonusAttackSpeed = parseInt(document.getElementById('bonusAttackSpeed').value) || 0;
-    let bonusDoubleHit = parseInt(document.getElementById('bonusDoubleHit').value) || 0;
-    let bonusLifeSteal = parseInt(document.getElementById('bonusLifeSteal').value) || 0;
-    let bonusCritChance = parseInt(document.getElementById('bonusCritChance').value) || 0;
-    let bonusCritDamage = parseInt(document.getElementById('bonusCritDamage').value) || 0;
-    let bonusRegen = parseInt(document.getElementById('bonusRegen').value) || 0;
-    let bonusDamage = parseInt(document.getElementById('bonusDamage').value) || 0;
-	let bonusMeleeDamage = parseInt(document.getElementById('bonusMeleeDamage').value) || 0;
-	let bonusBlock = parseInt(document.getElementById('bonusBlock').value) || 0;
-	let bonusHP = parseInt(document.getElementById('bonusHP').value) || 0;
+function parseSubStat(id) {
+    let value = document.getElementById(id).value.replace(',', '.'); // remplace la virgule par un point
+    return parseFloat(value) || 0;
+}
+
+let bonusAttackSpeed = parseSubStat('bonusAttackSpeed');
+let bonusDoubleHit = parseSubStat('bonusDoubleHit');
+let bonusLifeSteal = parseSubStat('bonusLifeSteal');
+let bonusCritChance = parseSubStat('bonusCritChance');
+let bonusCritDamage = parseSubStat('bonusCritDamage');
+let bonusRegen = parseSubStat('bonusRegen');
+let bonusDamage = parseSubStat('bonusDamage');
+let bonusMeleeDamage = parseSubStat('bonusMeleeDamage');
+let bonusBlock = parseSubStat('bonusBlock');
+let bonusHP = parseSubStat('bonusHP');
 
 
 // --- Caps maximum par sous-stat ---
@@ -323,16 +328,17 @@ function computeScore(damage, atkSpeed, doubleHit, critChance, critDamage, lifeS
 
 // --- Récupération des stats de Player B ---
 let weaponTypeB = document.getElementById('weaponTypeB').value;
-let bonusAttackSpeedB = parseInt(document.getElementById('bonusAttackSpeedB').value) || 0;
-let bonusDoubleHitB = parseInt(document.getElementById('bonusDoubleHitB').value) || 0;
-let bonusLifeStealB = parseInt(document.getElementById('bonusLifeStealB').value) || 0;
-let bonusCritChanceB = parseInt(document.getElementById('bonusCritChanceB').value) || 0;
-let bonusCritDamageB = parseInt(document.getElementById('bonusCritDamageB').value) || 0;
-let bonusRegenB = parseInt(document.getElementById('bonusRegenB').value) || 0;
-let bonusDamageB = parseInt(document.getElementById('bonusDamageB').value) || 0;
-let bonusMeleeDamageB = parseInt(document.getElementById('bonusMeleeDamageB').value) || 0;
-let bonusBlockB = parseInt(document.getElementById('bonusBlockB').value) || 0;
-let bonusHPB = parseInt(document.getElementById('bonusHPB').value) || 0;
+let bonusAttackSpeedB = parseSubStat('bonusAttackSpeedB');
+let bonusDoubleHitB = parseSubStat('bonusDoubleHitB');
+let bonusLifeStealB = parseSubStat('bonusLifeStealB');
+let bonusCritChanceB = parseSubStat('bonusCritChanceB');
+let bonusCritDamageB = parseSubStat('bonusCritDamageB');
+let bonusRegenB = parseSubStat('bonusRegenB');
+let bonusDamageB = parseSubStat('bonusDamageB');
+let bonusMeleeDamageB = parseSubStat('bonusMeleeDamageB');
+let bonusBlockB = parseSubStat('bonusBlockB');
+let bonusHPB = parseSubStat('bonusHPB');
+
 
 // Calcul des stats Player B (1 point = 1%)
 let attackSpeedB = bonusAttackSpeedB;
