@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,118 +7,131 @@
 <style>
 body{font-family:Arial,sans-serif;margin:40px;background:#e0e0e0}
 h2{text-align:center;margin-bottom:20px}
-label{font-weight:bold;font-size:16px;margin-right:10px;}
-.select-container{display:flex;justify-content:center;align-items:center;margin-bottom:10px;}
-select{padding:6px 10px;border-radius:6px;border:1px solid #333;font-weight:bold;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
-.controls{display:flex;justify-content:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.controls button{padding:8px 14px;border:1px solid #333;background:#fff;cursor:pointer;border-radius:6px;font-weight:bold;transition:0.2s;user-select:none}
+label{font-weight:bold;font-size:16px;margin-right:10px}
+.select-container,.controls{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+select{padding:6px 10px;border-radius:6px;border:1px solid #333;font-weight:bold;cursor:pointer;appearance:none}
+.controls button{padding:8px 14px;border:1px solid #333;background:#fff;cursor:pointer;border-radius:6px;font-weight:bold;transition:.2s;user-select:none}
 .controls button.active{background:#333;color:#fff}
 .controls button:hover{background:#555;color:#fff}
-.container{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;align-items:flex-start;width:100%}
+.container{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;align-items:flex-start}
 table{flex:0 0 30%;min-width:250px;border-collapse:collapse;background:#f9f9f9;border-radius:10px;overflow:hidden}
-th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;font-weight:bold}
+th,td{padding:10px;border-bottom:1px solid #ddd;font-weight:bold}
 th{background:#333;color:#fff}
 tr:nth-child(even){background:#ececec}
 .chart-container{flex:1 1 65%;min-width:400px}
 canvas{width:100%!important;height:600px!important;background:#f9f9f9;border:1px solid #ccc;padding:20px;border-radius:10px}
-/* Option colors in dropdown */
-option[data-color="green"]{background-color:green;color:white;}
-option[data-color="red"]{background-color:red;color:white;}
-option[data-color="white"]{background-color:white;color:black;}
+option[data-color="green"]{background:green;color:#fff}
+option[data-color="red"]{background:red;color:#fff}
+option[data-color="white"]{background:#fff;color:#000}
 </style>
 </head>
+
 <body>
 
 <h2><b>SYMMETRY</b></h2>
 
 <div class="select-container">
-  <label for="warSelect">Select War:</label>
-  <select id="warSelect">
-    <option value="war3" data-color="white" selected>War 3</option>
-    <option value="war2" data-color="red">War 2</option>
-    <option value="war1" data-color="green">War 1</option>
-  </select>
+<label>Select War:</label>
+<select id="warSelect">
+<option value="war3" data-color="white" selected>War 3</option>
+<option value="war2" data-color="red">War 2</option>
+<option value="war1" data-color="green">War 1</option>
+</select>
 </div>
 
 <div class="controls">
-  <button id="selectAllDays" class="active">All Days</button>
-  <button data-day="0" class="active">Day 1</button>
-  <button data-day="1" class="active">Day 2</button>
-  <button data-day="2" class="active">Day 3</button>
-  <button data-day="3" class="active">Day 4</button>
-  <button data-day="4" class="active">Day 5</button>
+<button id="selectAllDays" class="active">All Days</button>
+<button data-day="0" class="active">Day 1</button>
+<button data-day="1" class="active">Day 2</button>
+<button data-day="2" class="active">Day 3</button>
+<button data-day="3" class="active">Day 4</button>
+<button data-day="4" class="active">Day 5</button>
 </div>
 
 <div class="controls">
-  <button data-range="all" class="active">All Players</button>
-  <button data-range="1-15">Top 1-15</button>
-  <button data-range="16-35">Top 16-35</button>
-  <button data-range="36-50">Top 36-50</button>
+<button data-range="all" class="active">All Players</button>
+<button data-range="1-15">Top 1-15</button>
+<button data-range="16-35">Top 16-35</button>
+<button data-range="36-50">Top 36-50</button>
 </div>
 
 <div class="container">
-  <table>
-    <thead><tr><th>Rank</th><th>Player</th><th>Total Points</th></tr></thead>
-    <tbody id="playersTable"></tbody>
-  </table>
-  <div class="chart-container"><canvas id="playersChart"></canvas></div>
+<table>
+<thead><tr><th>Rank</th><th>Player</th><th>Total Points</th></tr></thead>
+<tbody id="playersTable"></tbody>
+</table>
+<div class="chart-container"><canvas id="playersChart"></canvas></div>
 </div>
 
+<script src="data.js"></script>
+
 <script>
-// ====== DATA ======
-const players_war_3=[{name:"Red95",points:[552716,480000,500000,470000,490000]},{name:"TheMyg",points:[501190,450000,470000,460000,480000]},{name:"Zicky1",points:[347964,400000,420000,410000,430000]},{name:"Avocado93",points:[318791,350000,360000,340000,370000]},{name:"ZINGARO",points:[306897,320000,330000,310000,340000]},{name:"Ergon",points:[302976,310000,315000,305000,320000]},{name:"Faras",points:[291314,300000,295000,285000,310000]},{name:"Thaurin",points:[263808,270000,275000,265000,280000]},{name:"Superpipo95",points:[256762,260000,255000,250000,270000]},{name:"Spamer",points:[250283,240000,245000,235000,250000]},{name:"MoinJungs",points:[237748,230000,235000,225000,240000]},{name:"Gauner",points:[225065,220000,215000,225000,230000]},{name:"Gladiatore",points:[214373,210000,215000,205000,220000]},{name:"Znaesh91",points:[202480,200000,205000,195000,210000]},{name:"Bellias",points:[201188,190000,195000,185000,200000]},{name:"TheToasty",points:[197383,190000,185000,180000,195000]},{name:"mavon10",points:[186131,180000,175000,170000,185000]},{name:"Vileg",points:[182791,180000,185000,175000,190000]},{name:"eMDe",points:[182209,180000,185000,175000,190000]},{name:"Hostis",points:[163428,160000,165000,155000,170000]},{name:"Adam2025",points:[162712,160000,155000,150000,165000]},{name:"Quackor2",points:[156432,150000,155000,145000,160000]},{name:"Alelk98",points:[150832,140000,145000,135000,150000]},{name:"HiJack2",points:[144926,140000,145000,135000,150000]},{name:"Wpierdol",points:[137983,130000,135000,125000,140000]},{name:"Neo78to",points:[132375,130000,125000,120000,135000]},{name:"Ribbe",points:[129063,120000,125000,115000,130000]},{name:"danipopeye",points:[128375,120000,125000,115000,130000]},{name:"LostGlory",points:[123767,120000,115000,110000,125000]},{name:"SuperKastiger",points:[120268,115000,120000,110000,125000]},{name:"SecondWind",points:[115938,110000,115000,105000,120000]},{name:"MaRaSLi",points:[115651,110000,115000,105000,120000]},{name:"Septem",points:[114746,110000,115000,105000,120000]},{name:"vicjo93",points:[113952,110000,115000,105000,120000]},{name:"Kelzyyy",points:[111824,105000,110000,100000,115000]},{name:"TonyTough",points:[110015,105000,110000,100000,115000]},{name:"T3ch",points:[107016,100000,105000,95000,110000]},{name:"Extonn",points:[95744,90000,95000,85000,100000]},{name:"ZeRat25",points:[94534,90000,95000,85000,100000]},{name:"Houndoom96",points:[94157,90000,95000,85000,100000]},{name:"Krexon",points:[89108,85000,90000,80000,95000]},{name:"CupidoGaming",points:[83839,80000,85000,75000,90000]},{name:"Samantha93",points:[83793,80000,85000,75000,90000]},{name:"Sputnik777",points:[79389,75000,80000,70000,85000]},{name:"skoskav",points:[76479,70000,75000,65000,80000]},{name:"WhiteMkc",points:[73857,70000,75000,65000,80000]},{name:"Zoro67",points:[64773,60000,65000,55000,70000]},{name:"Mortex",points:[58849,55000,60000,50000,65000]},{name:"Kohza37",points:[55305,50000,55000,45000,60000]},{name:"Akirro",points:[52275,50000,55000,45000,60000]}];
-const randomPlayers=()=>Array.from({length:50},(_,i)=>({name:`Player${i+1}`,points:Array.from({length:5},()=>Math.floor(Math.random()*400000+50000))}));
-const players_war_2=randomPlayers(), players_war_1=randomPlayers();
+let players=players_war_3,globalColors={},activeDays=new Set([0,1,2,3,4]),activeRange='all';
+const $=q=>document.querySelectorAll(q),
+tableBody=document.getElementById('playersTable'),
+dayBtns=$('[data-day]'),rangeBtns=$('[data-range]'),
+allDaysBtn=document.getElementById('selectAllDays'),
+warSelect=document.getElementById('warSelect'),
+getColor=r=>r>=46?'#d73027':r>=36?'#fc8d59':r>=21?'#4575b4':r>=6?'#238b45':'#9c179e';
 
-let players=players_war_3, globalColors={};
+const chart=new Chart(playersChart,{type:'line',data:{labels:[],datasets:[]},
+options:{responsive:true,maintainAspectRatio:false,
+interaction:{mode:'nearest',intersect:false},
+plugins:{legend:{display:false},
+tooltip:{callbacks:{label:c=>`${c.dataset.label} : ${c.parsed.y.toLocaleString()} pts`}}},
+scales:{y:{beginAtZero:false}}}});
 
-// DOM & state
-const tableBody=document.getElementById('playersTable'),
-      dayButtons=document.querySelectorAll('[data-day]'),
-      selectAllDaysBtn=document.getElementById('selectAllDays'),
-      rangeButtons=document.querySelectorAll('[data-range]'),
-      warSelect=document.getElementById('warSelect');
-let activeDays=new Set([0,1,2,3,4]), activeRange='all';
+const computeColors=()=>globalColors=Object.fromEntries(
+players.map(p=>[p.name,p.points.reduce((a,b)=>a+b,0)])
+.sort((a,b)=>b[1]-a[1]).map((p,i)=>[p[0],getColor(i+1)])
+);
 
-const getColor=r=>r>=46?'#d73027':r>=36?'#fc8d59':r>=21?'#4575b4':r>=6?'#238b45':'#9c179e';
+const update=()=>{
+const days=[...activeDays].sort(),rank=players
+.map(p=>({name:p.name,total:days.reduce((s,d)=>s+p.points[d],0)}))
+.sort((a,b)=>b.total-a.total)
+.filter((_,i)=>activeRange=='all'||(i+1>=+activeRange.split('-')[0]&&i+1<=+activeRange.split('-')[1]));
 
-// Chart
-const ctx=document.getElementById('playersChart').getContext('2d');
-let chart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label} : ${ctx.parsed.y.toLocaleString()} pts`}}},scales:{y:{beginAtZero:false}}}});
+tableBody.innerHTML=rank.map((p,i)=>
+`<tr><td style="color:${globalColors[p.name]}">${i+1}</td>
+<td style="color:${globalColors[p.name]}">${p.name}</td>
+<td style="color:${globalColors[p.name]}">${p.total.toLocaleString()}</td></tr>`).join('');
 
-const computeGlobalColors=()=>{globalColors={};players.map(p=>({name:p.name,total:p.points.reduce((a,b)=>a+b,0)})).sort((a,b)=>b.total-a.total).forEach((p,i)=>globalColors[p.name]=getColor(i+1));};
+chart.data.labels=days.map(d=>'Day '+(d+1));
+chart.data.datasets=rank.map(p=>({
+label:p.name,data:days.map(d=>players.find(x=>x.name===p.name).points[d]),
+borderColor:globalColors[p.name],tension:.3}));
 
-function update(){
-  const days=[...activeDays].sort((a,b)=>a-b);
-  let ranking=players.map(p=>({name:p.name,total:days.reduce((s,d)=>s+p.points[d],0)})).sort((a,b)=>b.total-a.total);
-  if(activeRange!=='all'){const [min,max]=activeRange.split('-').map(Number);ranking=ranking.filter((p,i)=>i+1>=min&&i+1<=max);}
-  tableBody.innerHTML=ranking.map((p,i)=>`<tr><td style="color:${globalColors[p.name]};font-weight:bold">${i+1}</td><td style="color:${globalColors[p.name]};font-weight:bold">${p.name}</td><td style="color:${globalColors[p.name]};font-weight:bold">${p.total.toLocaleString()}</td></tr>`).join('');
-  chart.data.labels=days.map(d=>'Day '+(d+1));
-  chart.data.datasets=ranking.map(p=>({label:p.name,data:days.map(d=>players.find(pl=>pl.name===p.name).points[d]),borderColor:globalColors[p.name],tension:0.3}));
-  const allPoints=chart.data.datasets.flatMap(ds=>ds.data);
-  chart.options.scales.y.min=Math.min(...allPoints)*0.95;
-  chart.options.scales.y.max=Math.max(...allPoints)*1.05;
-  chart.update();
-}
+const pts=chart.data.datasets.flatMap(d=>d.data);
+chart.options.scales.y.min=Math.min(...pts)*.95;
+chart.options.scales.y.max=Math.max(...pts)*1.05;
+chart.update();
+};
 
-// EVENTS
-dayButtons.forEach(b=>b.addEventListener('click',()=>{const d=+b.dataset.day;activeDays.has(d)?activeDays.delete(d):activeDays.add(d);dayButtons.forEach(bb=>bb.classList.toggle('active',activeDays.has(+bb.dataset.day)));selectAllDaysBtn.classList.toggle('active',activeDays.size===5);update();}));
-selectAllDaysBtn.addEventListener('click',()=>{activeDays.size===5?activeDays.clear():activeDays=new Set([0,1,2,3,4]);dayButtons.forEach(bb=>bb.classList.toggle('active',activeDays.has(+bb.dataset.day)));selectAllDaysBtn.classList.add('active');update();});
-rangeButtons.forEach(b=>b.addEventListener('click',()=>{activeRange=b.dataset.range;rangeButtons.forEach(rb=>rb.classList.toggle('active',rb.dataset.range===activeRange));update();}));
-
-const setSelectColor=()=>{const color=warSelect.selectedOptions[0].dataset.color; warSelect.style.backgroundColor=color==='white'?'white':color; warSelect.style.color=color==='white'?'black':'white';};
-
-warSelect.addEventListener('change',()=>{
-  players=warSelect.value==='war3'?players_war_3:warSelect.value==='war2'?players_war_2:players_war_1;
-  computeGlobalColors();
-  update();
-  setSelectColor();
+dayBtns.forEach(b=>b.onclick=()=>{
+activeDays.has(+b.dataset.day)?activeDays.delete(+b.dataset.day):activeDays.add(+b.dataset.day);
+dayBtns.forEach(x=>x.classList.toggle('active',activeDays.has(+x.dataset.day)));
+allDaysBtn.classList.toggle('active',activeDays.size===5);update();
 });
 
-// Init
-computeGlobalColors();
-setSelectColor();
-update();
+allDaysBtn.onclick=()=>{
+activeDays.size===5?activeDays.clear():activeDays=new Set([0,1,2,3,4]);
+dayBtns.forEach(x=>x.classList.toggle('active',activeDays.has(+x.dataset.day)));
+allDaysBtn.classList.add('active');update();
+};
+
+rangeBtns.forEach(b=>b.onclick=()=>{activeRange=b.dataset.range;
+rangeBtns.forEach(x=>x.classList.toggle('active',x===b));update();});
+
+warSelect.onchange=()=>{
+players=warSelect.value=='war3'?players_war_3:warSelect.value=='war2'?players_war_2:players_war_1;
+const c=warSelect.selectedOptions[0].dataset.color;
+warSelect.style.background=c=='white'?'white':c;
+warSelect.style.color=c=='white'?'black':'white';
+computeColors();update();
+};
+
+computeColors();warSelect.onchange();
 </script>
 </body>
 </html>
