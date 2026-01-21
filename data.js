@@ -1,62 +1,68 @@
+
+// LAST : +KittysEngel82, Kitty87
+// A MAJ :  
+
+
+
+
+
 // ====== DATA ======
 const players_war_3 = [
-  {name:"Red95",points:[552716,480000,500000,470000,490000]},
-  {name:"TheMyg",points:[501190,450000,470000,460000,480000]},
-  {name:"Zicky1",points:[347964,400000,420000,410000,430000]},
-  {name:"Avocado93",points:[318791,350000,360000,340000,370000]},
-  {name:"ZINGARO",points:[306897,320000,330000,310000,340000]},
-  {name:"Ergon",points:[302976,310000,315000,305000,320000]},
-  {name:"Faras",points:[291314,300000,295000,285000,310000]},
-  {name:"Thaurin",points:[263808,270000,275000,265000,280000]},
-  {name:"Superpipo95",points:[256762,260000,255000,250000,270000]},
-  {name:"Spamer",points:[250283,240000,245000,235000,250000]},
-  {name:"MoinJungs",points:[237748,230000,235000,225000,240000]},
-  {name:"Gauner",points:[225065,220000,215000,225000,230000]},
-  {name:"Gladiatore",points:[214373,210000,215000,205000,220000]},
-  {name:"Znaesh91",points:[202480,200000,205000,195000,210000]},
-  {name:"Bellias",points:[201188,190000,195000,185000,200000]},
-  {name:"TheToasty",points:[197383,190000,185000,180000,195000]},
-  {name:"mavon10",points:[186131,180000,175000,170000,185000]},
-  {name:"Vileg",points:[182791,180000,185000,175000,190000]},
-  {name:"eMDe",points:[182209,180000,185000,175000,190000]},
-  {name:"Hostis",points:[163428,160000,165000,155000,170000]},
-  {name:"Adam2025",points:[162712,160000,155000,150000,165000]},
-  {name:"Quackor2",points:[156432,150000,155000,145000,160000]},
-  {name:"Alelk98",points:[150832,140000,145000,135000,150000]},
-  {name:"HiJack2",points:[144926,140000,145000,135000,150000]},
-  {name:"Wpierdol",points:[137983,130000,135000,125000,140000]},
-  {name:"Neo78to",points:[132375,130000,125000,120000,135000]},
-  {name:"Ribbe",points:[129063,120000,125000,115000,130000]},
-  {name:"danipopeye",points:[128375,120000,125000,115000,130000]},
-  {name:"LostGlory",points:[123767,120000,115000,110000,125000]},
-  {name:"SuperKastiger",points:[120268,115000,120000,110000,125000]},
-  {name:"SecondWind",points:[115938,110000,115000,105000,120000]},
-  {name:"MaRaSLi",points:[115651,110000,115000,105000,120000]},
-  {name:"Septem",points:[114746,110000,115000,105000,120000]},
-  {name:"vicjo93",points:[113952,110000,115000,105000,120000]},
-  {name:"Kelzyyy",points:[111824,105000,110000,100000,115000]},
-  {name:"TonyTough",points:[110015,105000,110000,100000,115000]},
-  {name:"T3ch",points:[107016,100000,105000,95000,110000]},
-  {name:"Extonn",points:[95744,90000,95000,85000,100000]},
-  {name:"ZeRat25",points:[94534,90000,95000,85000,100000]},
-  {name:"Houndoom96",points:[94157,90000,95000,85000,100000]},
-  {name:"Krexon",points:[89108,85000,90000,80000,95000]},
-  {name:"CupidoGaming",points:[83839,80000,85000,75000,90000]},
-  {name:"Samantha93",points:[83793,80000,85000,75000,90000]},
-  {name:"Sputnik777",points:[79389,75000,80000,70000,85000]},
-  {name:"skoskav",points:[76479,70000,75000,65000,80000]},
-  {name:"WhiteMkc",points:[73857,70000,75000,65000,80000]},
-  {name:"Zoro67",points:[64773,60000,65000,55000,70000]},
-  {name:"Mortex",points:[58849,55000,60000,50000,65000]},
-  {name:"Kohza37",points:[55305,50000,55000,45000,60000]},
-  {name:"Akirro",points:[52275,50000,55000,45000,60000]}
-];
+{name:"Znaesh91",points:[29523,0,0,0,0]},
+{name:"Superpippo95",points:[15000,0,0,0,0]},
+{name:"Quackor2",points:[7569,0,0,0,0]},
+{name:"Zicky1",points:[32688,0,0,0,0]},
+{name:"Red95",points:[48463,0,0,0,0]},
+{name:"TheMyg",points:[77554,0,0,0,0]},
+{name:"ZINGARO",points:[58512,0,0,0,0]},
+{name:"Extonn",points:[33491,0,0,0,0]},
+{name:"TheToasty",points:[7350,0,0,0,0]},
+{name:"Gauner",points:[23697,0,0,0,0]},
+{name:"Wpierdol",points:[32430,0,0,0,0]},
+{name:"Adam2025",points:[23078,0,0,0,0]},
+{name:"Ergon",points:[30600,0,0,0,0]},
+{name:"Spamer",points:[31614,0,0,0,0]},
+{name:"Faras",points:[7570,0,0,0,0]},
+{name:"Thaurin",points:[99567,0,0,0,0]},
+{name:"Houndoom96",points:[14697,0,0,0,0]},
+{name:"Gladiatore",points:[33974,0,0,0,0]},
+{name:"Bellias",points:[27500,0,0,0,0]},
+{name:"Alelk98",points:[26325,0,0,0,0]},
+{name:"Avocado93",points:[81814,0,0,0,0]},
+{name:"Neo78to",points:[39366,0,0,0,0]},
+{name:"TonyTough",points:[21884,0,0,0,0]},
+{name:"eMDe",points:[0,0,0,0,0]},
+{name:"Beatsone",points:[63900,0,0,0,0]},
+{name:"MaRaSLi",points:[27375,0,0,0,0]},
+{name:"SuperKastiger",points:[22566,0,0,0,0]},
+{name:"MoinJungs",points:[30708,0,0,0,0]},
+{name:"Mortex",points:[21837,0,0,0,0]},
+{name:"Vileg",points:[20000,0,0,0,0]},
+{name:"danipopeye",points:[62913,0,0,0,0]},
+{name:"SecondWind",points:[40335,0,0,0,0]},
+{name:"Kelzyyy",points:[20783,0,0,0,0]},
+{name:"Ribbe",points:[44898,0,0,0,0]},
+{name:"LostGlory",points:[9249,0,0,0,0]},
+{name:"HiJack2",points:[30779,0,0,0,0]},
+{name:"T3ch",points:[15100,0,0,0,0]},
+{name:"vicio93",points:[35450,0,0,0,0]},
+{name:"Hostis",points:[43640,0,0,0,0]},
+{name:"ZeRat25",points:[8448,0,0,0,0]},
+{name:"Samantha93",points:[26388,0,0,0,0]},
+{name:"Krexon",points:[6525,0,0,0,0]},
+{name:"Sputnik777",points:[15186,0,0,0,0]},
+{name:"mavon10",points:[14700,0,0,0,0]},
+{name:"Winstons",points:[16402,0,0,0,0]},
+{name:"Septem",points:[33745,0,0,0,0]},
+{name:"ShadowBlade",points:[6578,0,0,0,0]},
+{name:"Naebator228",points:[20279,0,0,0,0]},
+{name:"Kitty87",points:[35765,0,0,0,0]},
+{name:"KittysEngel82",points:[14019,0,0,0,0]}
+]
 
-const randomPlayers = () =>
-  Array.from({length:50},(_,i)=>({
-    name:`Player${i+1}`,
-    points:Array.from({length:5},()=>Math.floor(Math.random()*400000+50000))
-  }));
+
+
+
 
 const players_war_2 = [
   {name:"Red95",points:[110543,110543,110543,110543,110543]},
@@ -67,7 +73,7 @@ const players_war_2 = [
   {name:"Ergon",points:[60595,60595,60595,60595,60595]},
   {name:"Faras",points:[58262,58262,58262,58262,58262]},
   {name:"Thaurin",points:[52761,52761,52761,52761,52761]},
-  {name:"Superpipo95",points:[51352,51352,51352,51352,51352]},
+  {name:"Superpippo95",points:[51352,51352,51352,51352,51352]},
   {name:"Spamer",points:[50056,50056,50056,50056,50056]},
   {name:"MoinJungs",points:[47549,47549,47549,47549,47549]},
   {name:"Gauner",points:[45013,45013,45013,45013,45013]},
@@ -111,5 +117,10 @@ const players_war_2 = [
   {name:"Akirro",points:[10455,10455,10455,10455,10455]}
 ];
 
-
+const randomPlayers = () =>
+  Array.from({length:50},(_,i)=>({
+    name:`Player${i+1}`,
+    points:Array.from({length:5},()=>Math.floor(Math.random()*400000+50000))
+  }));
+  
 const players_war_1 = randomPlayers();
