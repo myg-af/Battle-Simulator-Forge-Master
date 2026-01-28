@@ -1,10 +1,19 @@
+// <option value="war4" data-color="white">War 4</option>
+//players=warSelect.value=='war4'?players_war_4: ...
+
+
+
 // Ne pas suppr ces commentaires
-// LAST : +KittysEngel82, +Kitty87  -T3ch
+// LAST : +utopiah
 // A MAJ : 
 
 
 
 const war_points = {
+  war4: {
+    clan:    [1894724,0,0,0,0],
+    enemy:  [1877282,0,0,0,0]
+  },
   war3: {
     clan:    [1491834,2443230,982830,3005870,1148007],
     enemy:  [263388,435040,91235,365450,313286]
@@ -18,6 +27,70 @@ const war_points = {
     enemy:  [0,0,0,0,0]
   }
 };
+
+
+
+
+
+
+
+
+
+// ====== DATA ======
+const players_war_4 = [
+{name:"Znaesh91",points:[58325,0,0,0,0]},
+{name:"Superpippo95",points:[45600,0,0,0,0]},
+{name:"Quackor2",points:[31301,0,0,0,0]},
+{name:"Zicky1",points:[69497,0,0,0,0]},
+{name:"Red95",points:[73370,0,0,0,0]},
+{name:"TheMyg",points:[55832,0,0,0,0]},
+{name:"ZINGARO",points:[29853,0,0,0,0]},
+{name:"Extonn",points:[13192,0,0,0,0]},
+{name:"TheToasty",points:[38922,0,0,0,0]},
+{name:"Gauner",points:[32913,0,0,0,0]},
+{name:"Wpierdol",points:[46749,0,0,0,0]},
+{name:"Adam2025",points:[28332,0,0,0,0]},
+{name:"Ergon",points:[50000,0,0,0,0]},
+{name:"Spamer",points:[16337,0,0,0,0]},
+{name:"Faras",points:[20592,0,0,0,0]},
+{name:"Thaurin",points:[105514,0,0,0,0]},
+{name:"Houndoom96",points:[44695,0,0,0,0]},
+{name:"Gladiatore",points:[76936,0,0,0,0]},
+{name:"Bellias",points:[48586,0,0,0,0]},
+{name:"Alelk98",points:[27500,0,0,0,0]},
+{name:"Avocado93",points:[52947,0,0,0,0]},
+{name:"Neo78to",points:[1500,0,0,0,0]},
+{name:"MaRaSLi",points:[40850,0,0,0,0]},
+{name:"SuperKastiger",points:[29472,0,0,0,0]},
+{name:"Mortex",points:[4009,0,0,0,0]},
+{name:"Vlieg",points:[27500,0,0,0,0]},
+{name:"danipopeye",points:[38000,0,0,0,0]},
+{name:"SecondWind",points:[27685,0,0,0,0]},
+{name:"kelzyyy",points:[27087,0,0,0,0]},
+{name:"Ribbe",points:[54354,0,0,0,0]},
+{name:"LostGlory",points:[42794,0,0,0,0]},
+{name:"HiJack2",points:[7298,0,0,0,0]},
+{name:"vicio93",points:[29348,0,0,0,0]},
+{name:"Hostis",points:[38000,0,0,0,0]},
+{name:"ZeRat25",points:[20000,0,0,0,0]},
+{name:"Samantha93",points:[10925,0,0,0,0]},
+{name:"Krexon",points:[29932,0,0,0,0]},
+{name:"Sputnik777",points:[62436,0,0,0,0]},
+{name:"mavon10",points:[25612,0,0,0,0]},
+{name:"Winstons",points:[30030,0,0,0,0]},
+{name:"Septem",points:[23425,0,0,0,0]},
+{name:"ShadowBlade",points:[28963,0,0,0,0]},
+{name:"Naebator228",points:[56147,0,0,0,0]},
+{name:"Kitty87",points:[44519,0,0,0,0]},
+{name:"KittysEngel82",points:[22938,0,0,0,0]},
+{name:"Mobis1",points:[101835,0,0,0,0]},
+{name:"JustLiam",points:[46590,0,0,0,0]},
+{name:"kreolove",points:[53410,0,0,0,0]},
+{name:"utopiah",points:[2214,0,0,0,0]}
+];
+
+
+
 
 
 // ====== DATA ======
