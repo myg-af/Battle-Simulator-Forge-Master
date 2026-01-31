@@ -11,20 +11,20 @@
 
 const war_points = {
   war4: {
-    clan:    [1894724,3476520,1898262,0,0],
-    enemy:  [1877282,3493270,1803467,0,0]
+    clan:    [1894724,3476520,1898262,4274550,0],
+    enemy:   [1877282,3493270,1803467,2883450,0]
   },
   war3: {
     clan:    [1491834,2443230,982830,3005870,1148007],
-    enemy:  [263388,435040,91235,365450,313286]
+    enemy:   [263388,435040,91235,365450,313286]
   },
   war2: {
     clan:    [1801654,1948520,764960,2811580,1203711],
-    enemy:  [1548562,1592620,979101,3073960,2104085]
+    enemy:   [1548562,1592620,979101,3073960,2104085]
   },
   war1: {
     clan:    [0,0,0,0,0],
-    enemy:  [0,0,0,0,0]
+    enemy:   [0,0,0,0,0]
   }
 };
 
@@ -38,53 +38,53 @@ const war_points = {
 
 // ====== DATA ======
 const players_war_4 = [
-{name:"Znaesh91",points:[58325,80500,85800,0,0]},
-{name:"Superpippo95",points:[45600,141560,48942,0,0]},
-{name:"Quackor2",points:[31301,30000,23418,0,0]},
-{name:"Zicky1",points:[69497,147100,65347,0,0]},
-{name:"Red95",points:[73370,144210,177908,0,0]},
-{name:"TheMyg",points:[55832,96000,0,0,0]},
-{name:"ZINGARO",points:[29853,97900,37381,0,0]},
-{name:"Extonn",points:[13192,82230,9612,0,0]},
-{name:"TheToasty",points:[38922,70970,30475,0,0]},
-{name:"Gauner",points:[32913,78950,20286,0,0]},
-{name:"Wpierdol",points:[46749,52200,50630,0,0]},
-{name:"Adam2025",points:[28332,29450,12647,0,0]},
-{name:"Ergon",points:[50000,121360,82283,0,0]},
-{name:"Spamer",points:[16337,71000,14736,0,0]},
-{name:"Faras",points:[20592,78750,47968,0,0]},
-{name:"Thaurin",points:[105514,88100,31101,0,0]},
-{name:"Houndoom96",points:[44695,53290,10960,0,0]},
-{name:"Gladiatore",points:[76936,84300,73572,0,0]},
-{name:"Bellias",points:[48586,81300,40456,0,0]},
-{name:"Alelk98",points:[27500,43130,0,0,0]},
-{name:"Avocado93",points:[52947,103800,90529,0,0]},
-{name:"Neo78to",points:[1500,63830,36818,0,0]},
-{name:"MaRaSLi",points:[40850,67800,9755,0,0]},
-{name:"SuperKastiger",points:[29472,38130,23089,0,0]},
-{name:"Vlieg",points:[27500,46700,58227,0,0]},
-{name:"danipopeye",points:[38000,49500,14402,0,0]},
-{name:"SecondWind",points:[27685,48950,42848,0,0]},
-{name:"kelzyyy",points:[27087,48760,8874,0,0]},
-{name:"Ribbe",points:[54354,38250,31070,0,0]},
-{name:"LostGlory",points:[42794,54600,12651,0,0]},
-{name:"HiJack2",points:[7298,74150,30500,0,0]},
-{name:"vicio93",points:[29348,118568,72902,0,0]},
-{name:"ZeRat25",points:[20000,33950,22710,0,0]},
-{name:"Samantha93",points:[10925,55560,21401,0,0]},
-{name:"Krexon",points:[29932,37020,8302,0,0]},
-{name:"Sputnik777",points:[62436,45260,18860,0,0]},
-{name:"mavon10",points:[25612,28150,30336,0,0]},
-{name:"Winstons",points:[30030,44160,5240,0,0]},
-{name:"Septem",points:[23425,44250,4400,0,0]},
-{name:"ShadowBlade",points:[28963,18400,5571,0,0]},
-{name:"Naebator228",points:[56147,92680,12653,0,0]},
-{name:"Kitty87",points:[44519,44100,29385,0,0]},
-{name:"KittysEngel82",points:[22938,18700,31074,0,0]},
-{name:"Mobis1",points:[101835,229110,229192,0,0]},
-{name:"JustLiam",points:[46590,65690,16705,0,0]},
-{name:"kreolove",points:[53410,134170,69735,0,0]},
-{name:"utopiah",points:[2214,12650,15354,0,0]}
+{name:"Znaesh91",points:[58325,80500,85800,109800,0]},
+{name:"Superpippo95",points:[45600,141560,48942,210000,0]},
+{name:"Quackor2",points:[31301,30000,23418,58960,0]},
+{name:"Zicky1",points:[69497,147100,65347,219100,0]},
+{name:"Red95",points:[73370,144210,177908,163100,0]},
+{name:"TheMyg",points:[55832,96000,0,215700,0]},
+{name:"ZINGARO",points:[29853,97900,37381,89540,0]},
+{name:"Extonn",points:[13192,82230,9612,118000,0]},
+{name:"TheToasty",points:[38922,70970,30475,44300,0]},
+{name:"Gauner",points:[32913,78950,20286,90000,0]},
+{name:"Wpierdol",points:[46749,52200,50630,144400,0]},
+{name:"Adam2025",points:[28332,29450,12647,57100,0]},
+{name:"Ergon",points:[50000,121360,82283,153400,0]},
+{name:"Spamer",points:[16337,71000,14736,115260,0]},
+{name:"Faras",points:[20592,78750,47968,60600,0]},
+{name:"Thaurin",points:[105514,88100,31101,123800,0]},
+{name:"Houndoom96",points:[44695,53290,10960,45050,0]},
+{name:"Gladiatore",points:[76936,84300,73572,301090,0]},
+{name:"Bellias",points:[48586,81300,40456,161450,0]},
+{name:"Alelk98",points:[27500,43130,0,44050,0]},
+{name:"Avocado93",points:[52947,103800,90529,72950,0]},
+{name:"Neo78to",points:[1500,63830,36818,41700,0]},
+{name:"MaRaSLi",points:[40850,67800,9755,38200,0]},
+{name:"SuperKastiger",points:[29472,38130,23089,45500,0]},
+{name:"Vlieg",points:[27500,46700,58227,90060,0]},
+{name:"danipopeye",points:[38000,49500,14402,45500,0]},
+{name:"SecondWind",points:[27685,48950,42848,19500,0]},
+{name:"kelzyyy",points:[27087,48760,8874,59000,0]},
+{name:"Ribbe",points:[54354,38250,31070,118410,0]},
+{name:"LostGlory",points:[42794,54600,12651,39300,0]},
+{name:"HiJack2",points:[7298,74150,30500,30600,0]},
+{name:"vicio93",points:[29348,118568,72902,141000,0]},
+{name:"ZeRat25",points:[20000,33950,22710,81370,0]},
+{name:"Samantha93",points:[10925,55560,21401,21150,0]},
+{name:"Krexon",points:[29932,37020,8302,46000,0]},
+{name:"Sputnik777",points:[62436,45260,18860,37850,0]},
+{name:"mavon10",points:[25612,28150,30336,66300,0]},
+{name:"Winstons",points:[30030,44160,5240,23500,0]},
+{name:"Septem",points:[23425,44250,4400,35000,0]},
+{name:"ShadowBlade",points:[28963,18400,5571,35250,0]},
+{name:"Naebator228",points:[56147,92680,12653,46900,0]},
+{name:"Kitty87",points:[44519,44100,29385,47100,0]},
+{name:"KittysEngel82",points:[22938,18700,31074,41500,0]},
+{name:"Mobis1",points:[101835,229110,229192,172000,0]},
+{name:"JustLiam",points:[46590,65690,16705,65900,0]},
+{name:"kreolove",points:[53410,134170,69735,52000,0]},
+{name:"utopiah",points:[2214,12650,15354,62220,0]}
 ];
 
 
