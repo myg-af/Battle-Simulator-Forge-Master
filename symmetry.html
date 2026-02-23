@@ -115,8 +115,8 @@ allDaysBtn.onclick=()=>{activeDays.size===5?activeDays.clear():activeDays=new Se
 rangeBtns.forEach(b=>b.onclick=()=>{activeRange=b.dataset.range;rangeBtns.forEach(x=>x.classList.toggle('active',x===b));update()});
 
 warSelect.onchange=()=>{
-  players=warSelect.value=='war6'?players_war_7:
-		  warSelect.value=='war5'?players_war_6:
+  players=warSelect.value=='war7'?players_war_7:
+		  warSelect.value=='war6'?players_war_6:
 		  warSelect.value=='war5'?players_war_5:
           warSelect.value=='war4'?players_war_4:
           warSelect.value=='war3'?players_war_3:
