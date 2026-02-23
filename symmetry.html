@@ -35,7 +35,8 @@ tr:nth-child(even){background:#d0d0d0}
 <div class="select-container">
 <label>Select War:</label>
 <select id="warSelect">
-<option value="war6" data-color="red"selected>War 6</option>
+<option value="war6" data-color="green"selected>War 7</option>
+<option value="war6" data-color="red">War 6</option>
 <option value="war5" data-color="green">War 5</option>
 <option value="war4" data-color="green">War 4</option>
 <option value="war3" data-color="green">War 3</option>
@@ -114,7 +115,8 @@ allDaysBtn.onclick=()=>{activeDays.size===5?activeDays.clear():activeDays=new Se
 rangeBtns.forEach(b=>b.onclick=()=>{activeRange=b.dataset.range;rangeBtns.forEach(x=>x.classList.toggle('active',x===b));update()});
 
 warSelect.onchange=()=>{
-  players=warSelect.value=='war6'?players_war_6:
+  players=warSelect.value=='war6'?players_war_7:
+		  warSelect.value=='war5'?players_war_6:
 		  warSelect.value=='war5'?players_war_5:
           warSelect.value=='war4'?players_war_4:
           warSelect.value=='war3'?players_war_3:
