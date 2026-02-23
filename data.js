@@ -8,6 +8,10 @@
 
 
 const war_points = {
+  war7: {
+    clan:    [2326000,309000,1395000,3412000,1079000],
+    enemy:   [0,0,0,0,0]
+  },
   war6: {
     clan:    [3279000,4901000,2066000,4248000,1709000],
     enemy:   [3481000,4919000,1195000,2048000,944000]
@@ -42,10 +46,61 @@ const war_points = {
 
 
 
+
+
+
+
 // ====== DATA ======
-
-
-
+const players_war_7 = [
+{name:"Znaesh91",points:[350000,0,0,0,0]},
+{name:"Superpippo95",points:[363413,0,0,0,0]},
+{name:"Quackor2",points:[104436,0,0,0,0]},
+{name:"Zicky1",points:[459998,0,0,0,0]},
+{name:"Red95",points:[350184,0,0,0,0]},
+{name:"TheMyg",points:[351429,0,0,0,0]},
+{name:"ZINGARO",points:[358520,0,0,0,0]},
+{name:"Extonn",points:[229633,0,0,0,0]},
+{name:"Gauner",points:[245211,0,0,0,0]},
+{name:"Wpierdol",points:[175393,0,0,0,0]},
+{name:"Ergon",points:[369259,0,0,0,0]},
+{name:"Spamer",points:[164724,0,0,0,0]},
+{name:"Faras",points:[372731,0,0,0,0]},
+{name:"Thaurin",points:[418503,0,0,0,0]},
+{name:"Houndoom96",points:[162143,0,0,0,0]},
+{name:"Gladiatore",points:[410850,0,0,0,0]},
+{name:"Bellias",points:[361264,0,0,0,0]},
+{name:"Alelk98",points:[70000,0,0,0,0]},
+{name:"caccael",points:[156441,0,0,0,0]},
+{name:"Avocado93",points:[320205,0,0,0,0]},
+{name:"Neo78to",points:[166654,0,0,0,0]},
+{name:"MaRaSLi",points:[199644,0,0,0,0]},
+{name:"Vlieg",points:[255362,0,0,0,0]},
+{name:"danipopeye",points:[271027,0,0,0,0]},
+{name:"kelzyyy",points:[207965,0,0,0,0]},
+{name:"Ribbe",points:[227839,0,0,0,0]},
+{name:"LostGlory",points:[195103,0,0,0,0]},
+{name:"vicio93",points:[350285,0,0,0,0]},
+{name:"Samantha93",points:[206071,0,0,0,0]},
+{name:"Krexon",points:[165585,0,0,0,0]},
+{name:"Sputnik777",points:[245756,0,0,0,0]},
+{name:"mavon10",points:[413979,0,0,0,0]},
+{name:"Septem",points:[305186,0,0,0,0]},
+{name:"Naebator228",points:[133344,0,0,0,0]},
+{name:"Mobis1",points:[267217,0,0,0,0]},
+{name:"JustLiam",points:[157671,0,0,0,0]},
+{name:"kreolove",points:[212465,0,0,0,0]},
+{name:"utopiah",points:[206368,0,0,0,0]},
+{name:"GetBamBam",points:[266866,0,0,0,0]},
+{name:"Turi334",points:[194163,0,0,0,0]},
+{name:"Buccia1002",points:[203063,0,0,0,0]},
+{name:"PolloFritto92",points:[303693,0,0,0,0]},
+{name:"Teqqz",points:[160281,0,0,0,0]},
+{name:"dorlas",points:[258306,0,0,0,0]},
+{name:"Jarheditan",points:[303555,0,0,0,0]},
+{name:"DeeoKanis",points:[180425,0,0,0,0]},
+{name:"ckdkeovirmdk",points:[96874,0,0,0,0]},
+{name:"TeuTone21",points:[45584,0,0,0,0]}
+];
 
 
 
