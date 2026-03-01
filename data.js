@@ -8,6 +8,10 @@
 
 
 const war_points = {
+  war8: {
+    clan:    [5624000,6184000,3875000,4070000,1206000],
+    enemy:   [6258000,4943000,1316000,2678000,769000]
+  },
   war7: {
     clan:    [2326000,3094000,1395000,3412000,1079000],
     enemy:   [0,0,0,0,0]
@@ -50,7 +54,69 @@ const war_points = {
 
 
 
+
+
 // ====== DATA ======
+const players_war_8 = [
+{name:"Znaesh91",points:[643274,0,0,0,0]},
+{name:"Superpippo95",points:[575038,0,0,0,0]},
+{name:"Quackor2",points:[255830,0,0,0,0]},
+{name:"Zicky1",points:[516016,0,0,0,0]},
+{name:"Red95",points:[1393469,0,0,0,0]},
+{name:"TheMyg",points:[602677,0,0,0,0]},
+{name:"ZINGARO",points:[477005,0,0,0,0]},
+{name:"Extonn",points:[388990,0,0,0,0]},
+{name:"Gauner",points:[401461,0,0,0,0]},
+{name:"Wpierdol",points:[216899,0,0,0,0]},
+{name:"Ergon",points:[641078,0,0,0,0]},
+{name:"Spamer",points:[339805,0,0,0,0]},
+{name:"Faras",points:[441708,0,0,0,0]},
+{name:"Thaurin",points:[803000,0,0,0,0]},
+{name:"Houndoom96",points:[207239,0,0,0,0]},
+{name:"Gladiatore",points:[700908,0,0,0,0]},
+{name:"Bellias",points:[625253,0,0,0,0]},
+{name:"caccael",points:[183144,0,0,0,0]},
+{name:"Avocado93",points:[431659,0,0,0,0]},
+{name:"Neo78to",points:[271274,0,0,0,0]},
+{name:"MaRaSLi",points:[136068,0,0,0,0]},
+{name:"Vlieg",points:[234483,0,0,0,0]},
+{name:"danipopeye",points:[369322,0,0,0,0]},
+{name:"kelzyyy",points:[381942,0,0,0,0]},
+{name:"Ribbe",points:[382847,0,0,0,0]},
+{name:"LostGlory",points:[266132,0,0,0,0]},
+{name:"vicio93",points:[684176,0,0,0,0]},
+{name:"Samantha93",points:[293064,0,0,0,0]},
+{name:"Krexon",points:[280008,0,0,0,0]},
+{name:"Sputnik777",points:[283708,0,0,0,0]},
+{name:"mavon10",points:[384167,0,0,0,0]},
+{name:"Septem",points:[238360,0,0,0,0]},
+{name:"Naebator228",points:[97513,0,0,0,0]},
+{name:"Mobis1",points:[1541969,0,0,0,0]},
+{name:"JustLiam",points:[247812,0,0,0,0]},
+{name:"kreolove",points:[517261,0,0,0,0]},
+{name:"utopiah",points:[341787,0,0,0,0]},
+{name:"GetBamBam",points:[357418,0,0,0,0]},
+{name:"Turi334",points:[233135,0,0,0,0]},
+{name:"Buccia1002",points:[273790,0,0,0,0]},
+{name:"PolloFritto92",points:[457826,0,0,0,0]},
+{name:"Teqqz",points:[308860,0,0,0,0]},
+{name:"dorlas",points:[357034,0,0,0,0]},
+{name:"Jarheditan",points:[591677,0,0,0,0]},
+{name:"DeeoKanis",points:[247806,0,0,0,0]},
+{name:"bebs",points:[109446,0,0,0,0]},
+{name:"ITAxJOKER",points:[187432,0,0,0,0]},
+{name:"Sevryn",points:[468019,0,0,0,0]},
+{name:"stepz",points:[301422,0,0,0,0]},
+{name:"ckdkeovirmdk",points:[273122,0,0,0,0]}
+];
+
+
+
+
+
+
+
+
 const players_war_7 = [
 {name:"Znaesh91",points:[350000,0,0,0,0]},
 {name:"Superpippo95",points:[363413,0,0,0,0]},
