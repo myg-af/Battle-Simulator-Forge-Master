@@ -8,6 +8,10 @@
 
 
 const war_points = {
+  war9: {
+    clan:    [3170000,3845000,1975000,3427000,1063000],
+    enemy:   [212000,173000,192000,102150,88000]
+  },
   war8: {
     clan:    [5624000,6184000,3875000,4070000,1206000],
     enemy:   [6258000,4943000,1316000,2678000,769000]
@@ -57,6 +61,61 @@ const war_points = {
 
 
 // ====== DATA ======
+const players_war_9 = [
+{name:"Znaesh91",points:[500050,0,0,0,0]},
+{name:"Superpippo95",points:[353136,0,0,0,0]},
+{name:"Quackor2",points:[91152,0,0,0,0]},
+{name:"Zicky1",points:[219257,0,0,0,0]},
+{name:"Red95",points:[501602,0,0,0,0]},
+{name:"TheMyg",points:[350810,0,0,0,0]},
+{name:"ZINGARO",points:[323452,0,0,0,0]},
+{name:"Extonn",points:[205868,0,0,0,0]},
+{name:"Gauner",points:[222641,0,0,0,0]},
+{name:"Wpierdol",points:[313510,0,0,0,0]},
+{name:"Ergon",points:[450237,0,0,0,0]},
+{name:"Spamer",points:[152620,0,0,0,0]},
+{name:"Faras",points:[309646,0,0,0,0]},
+{name:"Thaurin",points:[531601,0,0,0,0]},
+{name:"Houndoom96",points:[239701,0,0,0,0]},
+{name:"Gladiatore",points:[450018,0,0,0,0]},
+{name:"Bellias",points:[365571,0,0,0,0]},
+{name:"caccael",points:[152300,0,0,0,0]},
+{name:"Avocado93",points:[327557,0,0,0,0]},
+{name:"Neo78to",points:[126226,0,0,0,0]},
+{name:"MaRaSLi",points:[107141,0,0,0,0]},
+{name:"Vlieg",points:[206868,0,0,0,0]},
+{name:"danipopeye",points:[202052,0,0,0,0]},
+{name:"kelzyyy",points:[396437,0,0,0,0]},
+{name:"Ribbe",points:[256292,0,0,0,0]},
+{name:"LostGlory",points:[336470,0,0,0,0]},
+{name:"vicio93",points:[360350,0,0,0,0]},
+{name:"Samantha93",points:[259925,0,0,0,0]},
+{name:"Krexon",points:[347383,0,0,0,0]},
+{name:"Sputnik777",points:[260561,0,0,0,0]},
+{name:"mavon10",points:[195698,0,0,0,0]},
+{name:"Septem",points:[308902,0,0,0,0]},
+{name:"Naebator228",points:[149326,0,0,0,0]},
+{name:"Mobis1",points:[308053,0,0,0,0]},
+{name:"JustLiam",points:[308864,0,0,0,0]},
+{name:"kreolove",points:[362639,0,0,0,0]},
+{name:"utopiah",points:[182936,0,0,0,0]},
+{name:"GetBamBam",points:[107253,0,0,0,0]},
+{name:"Turi334",points:[185337,0,0,0,0]},
+{name:"Buccia1002",points:[96084,0,0,0,0]},
+{name:"PolloFritto92",points:[262574,0,0,0,0]},
+{name:"Teqqz",points:[322118,0,0,0,0]},
+{name:"dorlas",points:[322284,0,0,0,0]},
+{name:"Jarheditan",points:[346936,0,0,0,0]},
+{name:"DeeoKanis",points:[269422,0,0,0,0]},
+{name:"bebs",points:[119925,0,0,0,0]},
+{name:"ITAxJOKER",points:[131942,0,0,0,0]},
+{name:"stepz",points:[153218,0,0,0,0]},
+{name:"ckdkeovlrmdk",points:[161234,0,0,0,0]},
+{name:"Akamanah",points:[268953,0,0,0,0]}
+];
+
+
+
 const players_war_8 = [
 {name:"Znaesh91",points:[643274,0,0,0,0]},
 {name:"Superpippo95",points:[575038,0,0,0,0]},
@@ -107,7 +166,7 @@ const players_war_8 = [
 {name:"ITAxJOKER",points:[187432,0,0,0,0]},
 {name:"Sevryn",points:[468019,0,0,0,0]},
 {name:"stepz",points:[301422,0,0,0,0]},
-{name:"ckdkeovirmdk",points:[273122,0,0,0,0]}
+{name:"ckdkeovlrmdk",points:[273122,0,0,0,0]}
 ];
 
 
@@ -164,7 +223,7 @@ const players_war_7 = [
 {name:"dorlas",points:[258306,0,0,0,0]},
 {name:"Jarheditan",points:[303555,0,0,0,0]},
 {name:"DeeoKanis",points:[180425,0,0,0,0]},
-{name:"ckdkeovirmdk",points:[96874,0,0,0,0]},
+{name:"ckdkeovlrmdk",points:[96874,0,0,0,0]},
 {name:"TeuTone21",points:[45584,0,0,0,0]}
 ];
 
