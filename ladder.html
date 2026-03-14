@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SYMMETRY LADDER</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#e0e0e0;
+  padding:40px;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+#ladderOutput{
+  width:900px;
+  height:700px;
+  display:block;
+  margin:auto;
+  padding:20px;
+  border-radius:10px;
+  border:1px solid #999;
+  font-family:Consolas, monospace;
+  font-size:14px;
+  line-height:1.6;
+  background:#d9d9d9;
+  white-space: pre;
+  overflow:auto;
+}
+
+#copyButton{
+  display:block;
+  margin:20px auto;
+  padding:10px 20px;
+  font-size:16px;
+  background:#4CAF50;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+#copyButton:hover{
+  background:#45a049;
+}
+</style>
+</head>
+
+<body>
+
+<h2>SYMMETRY LADDER</h2>
+
+<textarea id="ladderOutput" readonly></textarea>
+<button id="copyButton">Copy to Clipboard</button>
+
+<script src="data.js"></script>
+
+<script>
+
+// =========================
+// CONFIG
+// =========================
+const LAST_WAR = 9
+
+// =========================
+// HELPERS
+// =========================
+const formatK = n => Math.round(n/1000) + "k"
+
+const wars = {
+  1: players_war_1,
+  2: players_war_2,
+  3: players_war_3,
+  4: players_war_4,
+  5: players_war_5,
+  6: players_war_6,
+  7: players_war_7,
+  8: players_war_8,
+  9: players_war_9
+}
+
+// =========================
+// RULE SCORE
+// =========================
+function ruleScore(player, warId, totalPoints){
+  if(warId == 7){
+    let limit = 370000
+    if(totalPoints <= limit) return 100
+    let excess = totalPoints - limit
+    let percent = excess / limit
+    let score = 100 - percent*250
+    return Math.max(0, Math.min(100, score))
+  }
+  if(warId == 9){
+    let prevWar = wars[8]
+    let prev = prevWar.find(p=>p.name===player)
+    if(!prev) return null
+    let prevPoints = prev.points.reduce((a,b)=>a+b,0)
+    let limit = prevPoints * 0.8
+    if(totalPoints <= limit) return 100
+    let excess = totalPoints - limit
+    let percent = excess / limit
+    let score = 100 - percent*250
+    return Math.max(0, Math.min(100, score))
+  }
+  return null
+}
+
+// =========================
+// BUILD LADDER
+// =========================
+const lastPlayers = wars[LAST_WAR].map(p=>p.name)
+let ladder = []
+
+lastPlayers.forEach(name=>{
+  let total = 0
+  let warsPlayed = 0
+  let ruleScores = []
+
+  for(let w=1; w<=LAST_WAR; w++){
+    let war = wars[w]
+    if(!war) continue
+    let player = war.find(p=>p.name===name)
+    if(!player) continue
+    let pts = player.points.reduce((a,b)=>a+b,0)
+    if(pts>0){
+      warsPlayed++
+      total += pts
+      let r = ruleScore(name, w, pts)
+      if(r!==null) ruleScores.push(r)
+    }
+  }
+
+  let avg = warsPlayed ? total / warsPlayed : 0
+  let ruleAvg = "N/A"
+  if(ruleScores.length)
+    ruleAvg = Math.round(ruleScores.reduce((a,b)=>a+b,0)/ruleScores.length)
+
+  ladder.push({name, avg, total, warsPlayed, ruleAvg})
+})
+
+// =========================
+// SORT
+// =========================
+ladder.sort((a,b)=>b.avg-a.avg)
+
+// =========================
+// BUILD TEXT LINE-BY-LINE
+// =========================
+let text = "@everyone\n"
+text += "**📊 CLAN RANKING 📊**\n\n"
+text += "Here is the **ranking of our members since the creation of the clan**.\n"
+text += "This ranking will be **updated every week** to track everyone's progress.\n\n"
+
+text += "**How the ranking works:**\n"
+text += "- Players are ranked based on their **average points per war**.\n"
+text += "- **Average points** = total points divided by the number of wars played.\n"
+text += "- **Total points** = sum of all points earned across wars.\n"
+text += "- **Rule respect** = how well special rules were respected.\n"
+text += "- **Wars played** = number of wars participated.\n\n"
+
+
+text += "**⚔️ Special rules:**\n"
+text += "War 7: Max 350k points, respected if <370k.\n"
+text += "War 9: Max 60% of points from previous war, respected if <80%.\n\n"
+
+text += "**🏆 Ranking:**\n"
+
+
+ladder.forEach((p,i)=>{
+  let rule = (p.ruleAvg==="N/A")?"N/A":p.ruleAvg+"%"
+  text += `${i+1}. **${p.name}** | Avg: **${formatK(p.avg)}** | Total: **${formatK(p.total)}** | Rule: **${rule}** | Wars: **${p.warsPlayed}**\n`
+})
+
+text += "```"
+
+// =========================
+// DISPLAY
+// =========================
+const output = document.getElementById("ladderOutput")
+output.value = text
+
+// =========================
+// COPY BUTTON
+// =========================
+document.getElementById("copyButton").addEventListener("click", async ()=>{
+  try {
+    await navigator.clipboard.writeText(text)
+    alert("Ladder copied to clipboard!")
+  } catch (err) {
+    alert("Failed to copy: " + err)
+  }
+})
+
+</script>
+
+</body>
+</html>
