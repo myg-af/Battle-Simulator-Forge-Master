@@ -8,6 +8,10 @@
 
 
 const war_points = {
+  war10: {
+    clan:    [4515,7307,6494,4233,1078],
+    enemy:   [5053,7809,6836,6080,897]
+  },
   war9: {
     clan:    [3170000,3845000,1975000,3427000,1063000],
     enemy:   [212000,173000,192000,102150,88000]
@@ -53,6 +57,57 @@ const war_points = {
 
 
 
+const players_war_10 = [
+{name:"Znaesh91",points:[706715,0,0,0,0]},
+{name:"Superpippo95",points:[645977,0,0,0,0]},
+{name:"Quackor2",points:[458362,0,0,0,0]},
+{name:"Zicky1",points:[918080,0,0,0,0]},
+{name:"Red95",points:[929749,0,0,0,0]},
+{name:"TheMyg",points:[909137,0,0,0,0]},
+{name:"ZINGARO",points:[546466,0,0,0,0]},
+{name:"Gauner",points:[479043,0,0,0,0]},
+{name:"Wpierdol",points:[278941,0,0,0,0]},
+{name:"Ergon",points:[764373,0,0,0,0]},
+{name:"Spamer",points:[355370,0,0,0,0]},
+{name:"Faras",points:[630219,0,0,0,0]},
+{name:"Thaurin",points:[699579,0,0,0,0]},
+{name:"Houndoom96",points:[254449,0,0,0,0]},
+{name:"Gladiatore",points:[638912,0,0,0,0]},
+{name:"Bellias",points:[692463,0,0,0,0]},
+{name:"caccael",points:[203465,0,0,0,0]},
+{name:"Avocado93",points:[408533,0,0,0,0]},
+{name:"Neo78to",points:[325228,0,0,0,0]},
+{name:"Vlieg",points:[361101,0,0,0,0]},
+{name:"danipopeye",points:[378371,0,0,0,0]},
+{name:"kelzyyy",points:[385180,0,0,0,0]},
+{name:"Ribbe",points:[462377,0,0,0,0]},
+{name:"LostGlory",points:[351936,0,0,0,0]},
+{name:"vicio93",points:[789428,0,0,0,0]},
+{name:"Samantha93",points:[344098,0,0,0,0]},
+{name:"Krexon",points:[345532,0,0,0,0]},
+{name:"Sputnik777",points:[328643,0,0,0,0]},
+{name:"mavon10",points:[565411,0,0,0,0]},
+{name:"Septem",points:[351498,0,0,0,0]},
+{name:"Naebator228",points:[214423,0,0,0,0]},
+{name:"Mobis1",points:[1772480,0,0,0,0]},
+{name:"JustLiam",points:[309436,0,0,0,0]},
+{name:"kreolove",points:[540576,0,0,0,0]},
+{name:"utopiah",points:[390885,0,0,0,0]},
+{name:"GetBamBam",points:[583653,0,0,0,0]},
+{name:"Turi334",points:[176245,0,0,0,0]},
+{name:"Buccia1002",points:[620615,0,0,0,0]},
+{name:"PolloFritto92",points:[508048,0,0,0,0]},
+{name:"Teqqz",points:[398134,0,0,0,0]},
+{name:"dorlas",points:[349244,0,0,0,0]},
+{name:"Jarheditan",points:[664399,0,0,0,0]},
+{name:"DeeoKanis",points:[242225,0,0,0,0]},
+{name:"bebs",points:[37469,0,0,0,0]},
+{name:"ITAxJOKER",points:[176989,0,0,0,0]},
+{name:"stepz",points:[248756,0,0,0,0]},
+{name:"Akamanah",points:[318373,0,0,0,0]},
+{name:"Extonn",points:[298459,0,0,0,0]},
+{name:"AthenaOG",points:[236454,0,0,0,0]}
+];
 
 
 
