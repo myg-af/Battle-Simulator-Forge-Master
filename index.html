@@ -79,11 +79,11 @@ button { margin-top: 20px; padding: 10px 15px; font-size: 16px; }
 </label>
 <h4>Distribute your sub-stats:</h4>
 <label>Attack Speed (+40% per sub-stat): <input type="number" id="bonusAttackSpeed" value="2"></label>
-<label>Double Chance (+40% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
+<label>Double Chance (+20% per sub-stat): <input type="number" id="bonusDoubleHit" value="2"></label>
 <label>Lifesteal (+20% per sub-stat): <input type="number" id="bonusLifeSteal" value="2"></label>
 <label>Critical Chance (+12% per sub-stat): <input type="number" id="bonusCritChance" value="2"></label>
-<label>Critical Damage (+100% per sub-stat): <input type="number" id="bonusCritDamage" value="2"></label>
-<label>Health Regen (+6% per sub-stat): <input type="number" id="bonusRegen" value="1"></label>
+<label>Critical Damage (+80% per sub-stat): <input type="number" id="bonusCritDamage" value="2"></label>
+<label>Health Regen (+4% per sub-stat): <input type="number" id="bonusRegen" value="1"></label>
 <label>Damage (+15% per sub-stat): <input type="number" id="bonusDamage" value="1"></label>
 <label>Melee Damage (+50% per sub-stat): <input type="number" id="bonusMeleeDamage" value="0"></label>
 <label>Block Chance (+5% per sub-stat): <input type="number" id="bonusBlock" value="0"></label>
@@ -284,11 +284,11 @@ bonusHP = capPoints(bonusHP);
 
 // --- Calcul avec cap ---
 let attackSpeed = Math.min(0.4 * bonusAttackSpeed * 100, CAPS.attackSpeed);
-let doubleHitChance = Math.min(0.4 * bonusDoubleHit, CAPS.doubleHit);
+let doubleHitChance = Math.min(0.2 * bonusDoubleHit, CAPS.doubleHit);
 let lifeSteal = Math.min(0.2 * bonusLifeSteal, CAPS.lifeSteal);
 let critChance = Math.min(0.12 * bonusCritChance, CAPS.critChance);
-let critDamageBonus = Math.min(1.2 + 1.0 * bonusCritDamage, CAPS.critDamage);
-let regen = Math.min(0.06 * bonusRegen, CAPS.regen);
+let critDamageBonus = Math.min(1.2 + 0.8 * bonusCritDamage, CAPS.critDamage);
+let regen = Math.min(0.04 * bonusRegen, CAPS.regen);
 let damageBonus = Math.min(1 + 0.15 * bonusDamage, CAPS.damage);
 let meleeDamageBonus = 1;
 if(weaponType === "Melee" && bonusMeleeDamage > 0){
@@ -375,11 +375,11 @@ function evaluateConfig(cfg){
     for(let i=0;i<cfg.length;i++) cfg[i] = Math.min(cfg[i],12);
 
     let atkSpeed = Math.min(0.4 * cfg[0] * 100, CAPS.attackSpeed);
-    let dblHit = Math.min(0.4 * cfg[1], CAPS.doubleHit);
+    let dblHit = Math.min(0.2 * cfg[1], CAPS.doubleHit);
     let ls = Math.min(0.2 * cfg[2], CAPS.lifeSteal);
     let critC = Math.min(0.12 * cfg[3], CAPS.critChance);
-    let critD = Math.min(1.2 + cfg[4], CAPS.critDamage);
-    let reg = Math.min(0.06 * cfg[5], CAPS.regen);
+    let critD = Math.min(1.2 + 0.8 * cfg[4], CAPS.critDamage);
+    let reg = Math.min(0.04 * cfg[5], CAPS.regen);
     let dmgBonus = Math.min(1 + 0.15 * cfg[6], CAPS.damage);
 
     // ✅ Calcul du bonus melee pour le score
@@ -421,11 +421,11 @@ let stats = computeScore(
     generateConfigs(totalBonusPoints);
 
 	let bAtkSpeed = bestConfig[0] * 40;
-	let bDouble = Math.min(1, bestConfig[1] * 0.4);
+	let bDouble = Math.min(1, bestConfig[1] * 0.2);
 	let bLifeSteal = bestConfig[2] * 0.2;
 	let bCritChance = 0.12 * bestConfig[3];
-	let bCritDamage = 1.2 + bestConfig[4];
-	let bRegen = 0.06 * bestConfig[5];
+	let bCritDamage = 1.2 + 0.8 * bestConfig[4];
+	let bRegen = 0.04 * bestConfig[5];
 	let bDamageBonus = 1 + 0.15 * bestConfig[6];
 	
 	
